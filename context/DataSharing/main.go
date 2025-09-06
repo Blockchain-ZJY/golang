@@ -13,4 +13,5 @@ func main() {
 func GetUser(ctx context.Context) {
 	// 获取用户名
 	fmt.Println(ctx.Value("name"))
+
 }
