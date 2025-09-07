@@ -1,6 +1,7 @@
 package main
 
 import (
+	"golang/rssagg/handler"
 	"log"
 	"net/http"
 	"os"
@@ -28,8 +29,8 @@ func main() {
 		MaxAge:           300,
 	}))
 	v1Router := chi.NewRouter()
-	v1Router.Get("/healthz", handlerReadiness)
-	v1Router.Get("/error", handlerError)
+	v1Router.Get("/healthz", handler.HandlerReadiness)
+	v1Router.Get("/error", handler.HandlerError)
 
 	router.Mount("/v1", v1Router)
 
