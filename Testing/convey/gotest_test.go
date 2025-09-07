@@ -13,3 +13,11 @@ func TestSlicesEqual(t *testing.T) {
 		So(SlicesEqual(a, b), ShouldBeTrue) // a和b相等，这个判定应该为true，如果确实相等，则单测绘PASS，否侧不通过
 	})
 }
+
+func TestGetSliceLength(t *testing.T) {
+	Convey("测试切片长度", t, func() {
+		a := []int{1, 2, 3, 4}
+		b := []int{1, 2, 3, 4}
+		So(GetSliceLength(a), ShouldEqual, GetSliceLength(b)) // a和b相等，这个判定应该为true，如果确实相等，则单测绘PASS，否侧不通过
+	})
+}

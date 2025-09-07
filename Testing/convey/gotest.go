@@ -16,3 +16,6 @@ func SlicesEqual(a, b []int) bool {
 	}
 	return true
 }
+func GetSliceLength(a []int) int {
+	return len(a)
+}
