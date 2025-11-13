@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option go_package = "proto/inventory";
+
+package inventory;
+
+// 库存服务
+service Inventory {
+  // 检查库存 (一元 RPC)
+  rpc CheckStock(CheckStockRequest) returns (CheckStockReply);
+}
+
+message CheckStockRequest {
+  string product_id = 1;
+  int32 quantity_required = 2;
+}
+
+message CheckStockReply {
+  bool is_in_stock = 1;
+}
