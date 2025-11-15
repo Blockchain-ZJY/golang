@@ -19,21 +19,41 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      # KAFKA_LISTENERS: 告诉 Broker 在容器内部监听哪些端口
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+      # KAFKA_ADVERTISED_LISTENERS: 告诉外部客户端用哪个地址来连接
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
 
-  # --- 新增的 Kafka UI 服务 ---
+  kafka1:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka1
+    depends_on:
+      - zookeeper
+    ports:
+      # 将宿主机的 9093 端口映射到容器的 9093 端口
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 2
+      # --- 致命错误修正: Zookeeper 端口是 2181, 不是 29092 ---
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      # KAFKA_LISTENERS: 告诉 Broker 在容器内部监听哪些端口
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:9093
+      # KAFKA_ADVERTISED_LISTENERS: 告诉外部客户端用哪个地址来连接
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:29093,PLAINTEXT_HOST://localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
     depends_on:
       - kafka
-    # 将 UI 的 8080 端口映射到你本地的 8080 端口，以便通过浏览器访问
+      - kafka1
     ports:
       - "8080:8080"
     environment:
-      # 告诉 UI 如何连接到 Kafka Broker
-      # 这里使用 Docker 内部网络地址 kafka:29092
       KAFKA_CLUSTERS_0_NAME: local-kafka-cluster
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      # 使用内部网络地址连接到两个 Broker
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092,kafka1:29093

@@ -1,0 +1,51 @@
+# 这是经过验证的、更稳健的 docker-compose.yml 模板
+version: '3.8'
+
+services:
+  kafka:
+    image: confluentinc/cp-kafka:7.4.4
+    container_name: kafka
+    ports:
+      # 将容器的 29092 端口映射到您电脑的 29092 端口，供 Go 程序连接
+      - "29092:29092"
+    environment:
+      # ======== KRaft 配置 ========
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      
+      # ======== 监听器配置 ========
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093,PLAINTEXT_HOST://0.0.0.0:29092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+
+      # ======== 集群 ID (关键！) ========
+      # 稍后我们会手动生成并替换这个值
+      KAFKA_CLUSTER_ID: 'zfgeaV7xRJi4vK5qgi2KSQ'
+
+      # ======== 单节点Broker的必要配置 ========
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    volumes:
+      # 使用命名卷来避免文件权限问题
+      - kafka_data:/var/lib/kafka/data
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: 'local-kafka'
+      # Kafka UI 从容器网络内部连接 Kafka 的 9092 端口
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: 'kafka:9092'
+
+# 在文件末尾声明命名卷
+volumes:
+  kafka_data:

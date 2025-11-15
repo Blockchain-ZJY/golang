@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -17,11 +18,11 @@ import (
 // --- Kafka 及应用配置 ---
 const (
 	// Kafka Broker 地址
-	kafkaBrokers = "localhost:9092"
+	kafkaBrokers = "localhost:9092,localhost:9093"
 	// 主题配置
-	topicOrderCreated = "orders.created"     // 接收新订单的主题
-	topicOrderProcessed = "orders.processed"   // 处理成功订单的主题
-	topicOrderFailed    = "orders.failed"      // 处理失败订单的死信主题
+	topicOrderCreated   = "orders.created"   // 接收新订单的主题
+	topicOrderProcessed = "orders.processed" // 处理成功订单的主题
+	topicOrderFailed    = "orders.failed"    // 处理失败订单的死信主题
 	// 消费者组 ID
 	groupID = "order-processor-group"
 	// 并发处理的工作单元数量
@@ -30,19 +31,19 @@ const (
 
 // Order 定义了订单的数据结构
 type Order struct {
-	ID         string    `json:"id"`
-	UserID     string    `json:"user_id"`
-	Amount     float64   `json:"amount"`
-	Currency   string    `json:"currency"`
-	CreatedAt  time.Time `json:"created_at"`
-	Status     string    `json:"status,omitempty"` // 用于记录处理结果
-	FailureReason string   `json:"failure_reason,omitempty"`
+	ID            string    `json:"id"`
+	UserID        string    `json:"user_id"`
+	Amount        float64   `json:"amount"`
+	Currency      string    `json:"currency"`
+	CreatedAt     time.Time `json:"created_at"`
+	Status        string    `json:"status,omitempty"` // 用于记录处理结果
+	FailureReason string    `json:"failure_reason,omitempty"`
 }
 
 // --- 全局组件 ---
 var (
-	logger      *slog.Logger      // 结构化日志记录器
-	kafkaWriter *kafka.Writer     // 用于向其他主题生产消息
+	logger      *slog.Logger  // 结构化日志记录器
+	kafkaWriter *kafka.Writer // 用于向其他主题生产消息
 )
 
 func main() {
@@ -57,7 +58,7 @@ func main() {
 	// 初始化 Kafka Writer，用于将处理结果发送到其他主题
 	// 这是一个通用的 Writer，可以向任何主题发送消息
 	kafkaWriter = &kafka.Writer{
-		Addr:     kafka.TCP(kafkaBrokers),
+		Addr:     kafka.TCP(strings.Split(kafkaBrokers, ",")[0]),
 		Balancer: &kafka.LeastBytes{},
 	}
 	defer func() {
@@ -68,7 +69,7 @@ func main() {
 
 	// 配置 Kafka Reader
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:        []string{kafkaBrokers},
+		Brokers:        strings.Split(kafkaBrokers, ","),
 		GroupID:        groupID,
 		Topic:          topicOrderCreated,
 		MinBytes:       10e3, // 10KB
@@ -138,6 +139,7 @@ func worker(ctx context.Context, id int, wg *sync.WaitGroup, messages <-chan kaf
 	logger := logger.With("worker_id", id) // 为每个 worker 创建一个带 ID 的子 logger
 	logger.Info("Worker 已启动")
 
+	// 这是一个阻塞操作，会一直等待，知道message 关闭 woker函数才结束
 	for msg := range messages {
 		// 解析订单
 		var order Order
@@ -151,7 +153,7 @@ func worker(ctx context.Context, id int, wg *sync.WaitGroup, messages <-chan kaf
 			}
 			continue
 		}
-		
+
 		l := logger.With("order_id", order.ID, "offset", msg.Offset)
 		l.Info("开始处理订单")
 
@@ -168,7 +170,7 @@ func worker(ctx context.Context, id int, wg *sync.WaitGroup, messages <-chan kaf
 			// 将处理成功的订单发送到下一个主题
 			forwardToProcessed(ctx, processedOrder)
 		}
-		
+
 		// --- 手动提交 Offset ---
 		// 无论成功还是失败，只要逻辑走完，就提交 offset
 		// 这样可以确保每条消息只被处理一次
@@ -180,7 +182,6 @@ func worker(ctx context.Context, id int, wg *sync.WaitGroup, messages <-chan kaf
 	}
 	logger.Info("Worker 已关闭")
 }
-
 
 // processOrder 模拟订单处理的核心业务逻辑
 func processOrder(order Order) (Order, error) {
@@ -196,7 +197,6 @@ func processOrder(order Order) (Order, error) {
 	order.Status = "PROCESSED"
 	return order, nil
 }
-
 
 // forwardToProcessed 将处理成功的订单发送到 `orders.processed` 主题
 func forwardToProcessed(ctx context.Context, order Order) {
@@ -219,7 +219,7 @@ func forwardToProcessed(ctx context.Context, order Order) {
 // forwardToDLQ 将处理失败的订单发送到死信队列 `orders.failed`
 func forwardToDLQ(ctx context.Context, order *Order, originalValue []byte, reason string) {
 	order.FailureReason = reason
-	
+
 	var valueBytes []byte
 	var err error
 
@@ -234,7 +234,7 @@ func forwardToDLQ(ctx context.Context, order *Order, originalValue []byte, reaso
 			return
 		}
 	}
-	
+
 	err = kafkaWriter.WriteMessages(ctx, kafka.Message{
 		Topic: topicOrderFailed,
 		Key:   []byte(order.ID),

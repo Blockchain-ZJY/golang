@@ -11,9 +11,10 @@ func Logger(next http.Handler) http.Handler {
 		now := time.Now()
 		next.ServeHTTP(w, r)
 		log.Printf("url :%s ,elaspe: %v", r.URL, time.Since(now))
-
 	}
-	// 将实例化函数赋值给http.HandlerFunc，返回一个满足接口要求（ServeHTTP）的实例
+	// 将一个普通的函数转化成http.HandlerFunc类型
+	// 任何满足(http.ResponseWriter,*http.Request)签名的函数经过HandlerFunc
+	// 都会被认定为是handler的一种，因为HandlerFunc实现了http.Handler接口
 	return http.HandlerFunc(fn)
 }
 
