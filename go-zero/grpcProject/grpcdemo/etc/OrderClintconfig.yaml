@@ -1,0 +1,4 @@
+# 这是一个最简单的直连模式配置
+# Name 字段可以随便填，主要是 Target 字段
+Name: order-client.rpc
+Target: 127.0.0.1:8080 # 指向您的 gRPC 服务监听的地址和端口

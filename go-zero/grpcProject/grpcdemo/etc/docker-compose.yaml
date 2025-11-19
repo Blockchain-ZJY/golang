@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  etcd:
+    # 使用 gcr.io 上由 etcd 官方维护的镜像
+    image: gcr.io/etcd-development/etcd:v3.5.15
+    container_name: etcd-server
+    ports:
+      # 将容器的 2379 端口映射到你电脑的 2379 端口
+      - "2379:2379"
+      # 2380 是用于 etcd 节点间通信的端口，也一并映射
+      - "2380:2380"
+    command:
+      - /usr/local/bin/etcd
+      - --name=etcd0
+      - --data-dir=/etcd-data
+      # 监听来自容器内所有网卡的客户端请求
+      - --listen-client-urls=http://0.0.0.0:2379
+      # 告诉客户端，应该通过这个地址来访问我
+      - --advertise-client-urls=http://0.0.0.0:2379
+      # 以下是集群间通信的配置，对于单节点也是必需的
+      - --listen-peer-urls=http://0.0.0.0:2380
+      - --initial-advertise-peer-urls=http://0.0.0.0:2380
+      - --initial-cluster=etcd0=http://0.0.0.0:2380
+      - --initial-cluster-state=new
+      - --log-level=info
+      - --logger=zap
+      - --log-outputs=stderr
