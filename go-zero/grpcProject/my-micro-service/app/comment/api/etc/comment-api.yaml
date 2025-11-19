@@ -1,0 +1,16 @@
+Name: comment-api
+Host: 127.0.0.1
+Port: 8888
+
+# 配置 RPC 客户端
+CommentRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: comment.rpc # 对应 Comment RPC 的 Key
+
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc # 对应 Comment RPC 的 Key

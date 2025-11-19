@@ -1,0 +1,34 @@
+syntax = "v1"
+
+type (
+	// 评论相关
+	CreateCommentReq {
+		UserId    int64  `json:"userId"`
+		ArticleId int64  `json:"articleId"`
+		Content   string `json:"content"`
+	}
+	CreateCommentResp {
+		CommentId int64 `json:"commentId"`
+	}
+	// --- ⬇️ 新增：用户相关 ⬇️ ---
+	// 注意：GET 请求参数通常用 form 标签，而不是 json
+	GetUserInfoReq {
+		Id int64 `form:"id"`
+	}
+	GetUserInfoResp {
+		Id       int64  `json:"id"`
+		Nickname string `json:"nickname"`
+		Avatar   string `json:"avatar"`
+	}
+)
+
+service comment-api {
+	// 评论接口
+	@handler CreateComment
+	post /comment/create (CreateCommentReq) returns (CreateCommentResp)
+
+	// --- ⬇️ 新增：用户接口 ⬇️ ---
+	@handler GetUserInfo
+	get /user/info (GetUserInfoReq) returns (GetUserInfoResp)
+}
+

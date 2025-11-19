@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>微服务综合测试</title>
+    <style>
+        /* 稍微增加一点样式以便区分两个功能 */
+        body { font-family: sans-serif; background: #f4f4f9; padding: 20px; }
+        .box { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 500px; margin-left: auto; margin-right: auto; }
+        input, button { padding: 10px; width: 100%; box-sizing: border-box; margin-top: 5px; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; margin-top: 15px;}
+        button:hover { background: #0056b3; }
+        .result { background: #eee; padding: 10px; margin-top: 10px; min-height: 20px; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+
+<!-- 功能区 1: 查询用户 -->
+<div class="box">
+    <h3>👤 查询用户信息 (User RPC)</h3>
+    <label>输入用户ID:</label>
+    <input type="number" id="queryUserId" value="1">
+    <button onclick="getUserInfo()">查询用户</button>
+    <div id="userResult" class="result">等待查询...</div>
+</div>
+
+<!-- 功能区 2: 发布评论 -->
+<div class="box">
+    <h3>💬 发布评论 (Comment RPC -> User RPC)</h3>
+    <label>用户 ID:</label>
+    <input type="number" id="commentUserId" value="1">
+    <label>内容:</label>
+    <input type="text" id="content" value="测试评论">
+<button onclick="submitComment()">提交评论</button>
+    <div id="commentResult" class="result">等待提交...</div>
+</div>
+
+<script>
+    // 端口配置
+    const API_HOST = "http://localhost:8888"; 
+
+    // 1. 查询用户 (GET 请求)
+    async function getUserInfo() {
+        const id = document.getElementById('queryUserId').value;
+        const resDiv = document.getElementById('userResult');
+        resDiv.innerText = "查询中...";
+        
+        try {
+            // GET 请求参数拼在 URL 后面
+            const response = await fetch(`${API_HOST}/user/info?id=${id}`);
+            const data = await response.json();
+            
+            if(response.ok) {
+                resDiv.innerHTML = `<strong>✅ 查到了:</strong><br>昵称: ${data.nickname}<br>ID: ${data.id}`;
+            } else {
+                resDiv.innerText = "❌ 失败: " + JSON.stringify(data);
+            }
+        } catch (e) {
+            resDiv.innerText = "❌ 网络错误: " + e.message;
+        }
+    }
+
+    // 2. 发布评论 (POST 请求)
+    async function submitComment() {
+        const userId = parseInt(document.getElementById('commentUserId').value);
+        const content = document.getElementById('content').value;
+        const resDiv = document.getElementById('commentResult');
+        
+        try {
+            const response = await fetch(`${API_HOST}/comment/create`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ userId: userId, articleId: 100, content: content })
+            });
+            const data = await response.json();
+            
+            if(response.ok) {
+                resDiv.innerHTML = `<strong>✅ 成功!</strong> CommentID: ${data.commentId}`;
+            } else {
+                resDiv.innerText = "❌ 失败: " + JSON.stringify(data);
+            }
+        } catch (e) {
+            resDiv.innerText = "❌ 网络错误: " + e.message;
+        }
+    }
+</script>
+</body>
+</html>

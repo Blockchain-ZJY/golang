@@ -1,0 +1,13 @@
+Name: comment.rpc
+ListenOn: 0.0.0.0:8081 # 注意端口不要冲突，User用了8080
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: comment.rpc
+
+# 新增依赖配置
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc  # 这里必须和 User 服务的 Key 一致
