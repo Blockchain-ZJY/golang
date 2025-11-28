@@ -107,6 +107,35 @@ func isMatch(s string, p string) bool {
 	return f[m][n]
 }
 
+func min(a int, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+func max(a int, b int) int {
+	if a < b {
+		return b
+	}
+	return a
+}
+
+// 11. 盛最多水的容器
+func maxArea(height []int) int {
+	i, j := 0, len(height)-1
+	ans := 0
+	for i < j {
+		ans = max(ans, (min(height[i], height[j]) * (j - i)))
+		if height[i] > height[j] {
+			j--
+		} else {
+			i++
+		}
+	}
+
+	return ans
+}
 func main() {
-	fmt.Println(isMatch("AAA","AB*A*C*"))
+	// fmt.Println(isMatch("AAA", "AB*A*C*"))
+	fmt.Println(maxArea([]int{1, 2, 4, 3}))
 }
