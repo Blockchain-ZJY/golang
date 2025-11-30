@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math"
+	"sort"
 )
 
 //// 3512.使数组和能被K 整除的最少操作次数
@@ -218,7 +220,7 @@ func minSubarray(nums []int, p int) int {
 }
 
 func main() {
-	fmt.Println(minSubarray([]int{3, 1, 4, 2}, 6))
+	fmt.Println(threeSumClosest([]int{-1, 2, 1, -4}, 1))
 }
 
 func minSubarray1(nums []int, p int) int {
@@ -226,24 +228,53 @@ func minSubarray1(nums []int, p int) int {
 	for _, v := range nums {
 		total += v
 	}
-	k := total % p
+	k := total % p //
 	if k == 0 {
 		return 0
 	}
-	//k -> v = 前缀和mod值 -> 数组index
 	maps := make(map[int]int)
 	maps[0] = -1
-	ans := 1000
-	presum := 0
-	var mod int
-	for j, v := range nums {
-		presum += v
-		mod = presum % p
-		target := (mod - k + p) % p
-		if i, ok := maps[target]; ok {
-			ans = min(ans, j-i)
+	n := 0
+	ans := len(nums)
+	for index, v := range nums {
+		n += v
+		mod := n % p
+		if j, ok := maps[(mod-k+p)%p]; ok {
+			ans = min(ans, index-j)
 		}
-		maps[mod] = j
+		maps[mod] = index
+	}
+	if ans == n {
+		return -1
 	}
 	return ans
+}
+
+// 16. 最接近的三数之和
+func threeSumClosest(nums []int, target int) int {
+	// 	X X X X X X X X X
+	// 	i l r
+	sort.Ints(nums) // sorts in place
+	fmt.Println(nums)
+	n := len(nums)
+	left, right := 0, 0
+	threesum := 0
+	cloestnum := nums[0] + nums[1] + nums[2]
+	for i := 0; i < len(nums); i++ {
+		left, right = i+1, n-1
+		for left < right {
+			threesum = nums[i] + nums[left] + nums[right]
+			if math.Abs(float64(threesum-target)) < math.Abs(float64(cloestnum-target)) {
+				cloestnum = threesum
+			}
+			if threesum-target == 0 {
+				return target
+			} else if threesum < target {
+				left++
+			} else {
+				right--
+			}
+		}
+	}
+	return cloestnum
 }
