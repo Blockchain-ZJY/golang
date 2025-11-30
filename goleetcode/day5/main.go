@@ -172,6 +172,78 @@ func sortArray(nums []int) []int {
 	return nums
 }
 
+// 1590. 使数组和能被 P 整除;
+// 给你一个正整数数组 nums，请你移除 最短 子数组（可以为 空），使得剩余元素的 和 能被 p 整除。 不允许 将整个数组都移除。
+// 请你返回你需要移除的最短子数组的长度，如果无法满足题目要求，返回 -1 。
+// 子数组 定义为原数组中连续的一组元素。
+
+// 去掉最少的子串,使得整个数组和能被p整除
+// 分析: 前缀和+mod+hash
+// X X X X [i X X j] X X X X
+//
+// sum[i:j] = prefix[j] - prefix[i-1]
+// sum[i:j]%p === k === prefix[j]%p - prefix[i-1]%p
+// 余数  k				 确定j     ->    确定i的位置
+// 确定一个j 找到一个i使得prefix[i-1]%p = 定值
+// presum[j]-presum[x]%p == k
+func minSubarray(nums []int, p int) int {
+	total := 0
+	for _, v := range nums {
+		total += v
+	}
+	k := total % p
+	if k == 0 {
+		return 0
+	}
+
+	n := len(nums)
+	ans := n
+	s := 0
+	last := map[int]int{0: -1}
+
+	for i, v := range nums {
+		s += v
+		mod := s % p
+		last[mod] = i
+		target := (mod - k + p) % p
+		if j, ok := last[target]; ok {
+			ans = min(ans, i-j)
+		}
+	}
+
+	if ans == n {
+		return -1
+	}
+	return ans
+}
+
 func main() {
-	fmt.Println(threeSum([]int{2, -3, 0, -2, -5, -5, -4, 1, 2, -2, 2, 0, 2, -4, 5, 5, -10}))
+	fmt.Println(minSubarray([]int{3, 1, 4, 2}, 6))
+}
+
+func minSubarray1(nums []int, p int) int {
+	total := 0
+	for _, v := range nums {
+		total += v
+	}
+	k := total % p
+	if k == 0 {
+		return 0
+	}
+	//k -> v = 前缀和mod值 -> 数组index
+	maps := make(map[int]int)
+	maps[0] = -1
+	ans := 1000
+	presum := 0
+	var mod int
+	for j, v := range nums {
+		presum += v
+		mod = presum % p
+		target := (mod - k + p) % p
+		if i, ok := maps[target]; ok {
+			ans = min(ans, j-i)
+		}
+		maps[mod] = j
+	}
+	return ans
 }
