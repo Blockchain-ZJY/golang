@@ -39,7 +39,9 @@ func NewListByArryReverse(arr []int) *ListNode {
 }
 
 func (l *ListNode) PrintList() {
-	l = l.Next
+	if l == nil {
+		return
+	}
 	for l != nil {
 		fmt.Print(l.Val, " ")
 		l = l.Next
