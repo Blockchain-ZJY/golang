@@ -181,6 +181,7 @@ func worker(ctx context.Context, id int, wg *sync.WaitGroup, messages <-chan kaf
 		}
 	}
 	logger.Info("Worker 已关闭")
+
 }
 
 // processOrder 模拟订单处理的核心业务逻辑
@@ -189,9 +190,10 @@ func processOrder(order Order) (Order, error) {
 	time.Sleep(time.Duration(100+time.Now().UnixNano()%100) * time.Millisecond)
 
 	// 模拟随机失败，例如库存不足或支付验证失败
-	if time.Now().UnixNano()%10 == 0 {
+	if time.Now().UnixNano()/100%10 == 0 {
+		fmt.Println(time.Now().UnixNano())
 		order.Status = "FAILED"
-		return order, fmt.Errorf("库存不足")
+		return order, fmt.Errorf("库存YOUYOUOYU不足")
 	}
 
 	order.Status = "PROCESSED"
@@ -212,7 +214,7 @@ func forwardToProcessed(ctx context.Context, order Order) {
 		Value: orderBytes,
 	})
 	if err != nil {
-		logger.Error("发送消息到 processed 主题失败", "error", err, "order_id", order.ID)
+		logger.Error("开始处理订单发送消息到 processed 主题失败", "error", err, "order_id", order.ID)
 	}
 }
 

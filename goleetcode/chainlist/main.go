@@ -5,9 +5,10 @@ import (
 )
 
 func main() {
-	l := NewListByArryReverse([]int{1, 2, 3, 4, 5, 6, 7, 8})
-	ans := removeNthFromEnd(l.Next, 7)
-	ans.PrintList()
+	l := NewListByArryReverse([]int{1, 2, 4})
+	l1 := NewListByArryReverse([]int{1, 3, 4})
+	ans := mergeTwoLists(l.Next, l1.Next)
+	ans.Next.PrintList()
 }
 
 // 19. 删除链表的倒数第 N 个结点
@@ -40,4 +41,36 @@ func removeNthFromEnd(head *ListNode, n int) *ListNode {
 	s.Next = p
 	fmt.Println(s.Val, f.Val, len)
 	return head
+}
+
+// 21. 合并两个有序链表
+func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
+	if list1 == nil {
+		return list2
+	}
+	if list2 == nil {
+		return list1
+	}
+
+	head := &ListNode{}
+	p := head
+	for list1 != nil || list2 != nil {
+		if list1 == nil {
+			p.Next = list2
+			return head
+		}
+		if list2 == nil {
+			p.Next = list1
+			return head
+		}
+		if list1.Val < list2.Val {
+			p.Next = list1
+			list1 = list1.Next
+		} else {
+			p.Next = list2
+			list2 = list2.Next
+		}
+		p = p.Next
+	}
+	return head.Next
 }

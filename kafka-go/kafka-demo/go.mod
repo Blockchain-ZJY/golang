@@ -1,6 +1,6 @@
-module golang-journey/kafka-go/kafka-demo-one-broker
+module golang/kafka-go/kafka-demo
 
-go 1.24.10
+go 1.25.4
 
 require github.com/segmentio/kafka-go v0.4.49
 

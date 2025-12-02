@@ -85,7 +85,6 @@ func (s *CharStack) Size() int {
 }
 
 // 18.四数之和
-
 func fourSum(nums []int, target int) [][]int {
 	res := [][]int{}
 	n := len(nums)

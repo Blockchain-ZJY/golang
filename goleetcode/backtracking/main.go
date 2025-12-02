@@ -84,6 +84,79 @@ func letterCombinations(digits string) []string {
 	backtrackingLetter(0, "")
 	return res
 }
+
+// 22. 括号生成
+func generateParenthesis(n int) []string {
+	path := "("
+	res := []string{}
+	var backtracking func(path string)
+	backtracking = func(path string) {
+		if len(path) == 2*n {
+			if Stackmatch(path) {
+				res = append(res, path)
+			}
+			return
+		}
+		backtracking(path + string("("))
+		backtracking(path + string(")"))
+	}
+	backtracking(path)
+	return res
+}
+
+func Stackmatch(s string) bool {
+	cstack := CharStack{}
+	for _, c := range s {
+		if string(c) == "(" {
+			cstack.Push(c)
+		} else {
+			topv, _ := cstack.Peek()
+			if string(topv) != "(" {
+				return false
+			}
+			cstack.Pop()
+		}
+	}
+	return cstack.IsEmpty()
+}
+
 func main() {
-	fmt.Println(letterCombinations("23"))
+	fmt.Println(generateParenthesis(3))
+}
+
+type CharStack struct {
+	items []rune
+}
+
+// 入栈
+func (s *CharStack) Push(ch rune) {
+	s.items = append(s.items, ch)
+}
+
+// 出栈
+func (s *CharStack) Pop() (rune, bool) {
+	if len(s.items) == 0 {
+		return 0, false
+	}
+	last := s.items[len(s.items)-1]
+	s.items = s.items[:len(s.items)-1]
+	return last, true
+}
+
+// 查看栈顶
+func (s *CharStack) Peek() (rune, bool) {
+	if len(s.items) == 0 {
+		return 0, false
+	}
+	return s.items[len(s.items)-1], true
+}
+
+// 判断是否为空
+func (s *CharStack) IsEmpty() bool {
+	return len(s.items) == 0
+}
+
+// 栈大小
+func (s *CharStack) Size() int {
+	return len(s.items)
 }
