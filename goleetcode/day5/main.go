@@ -197,12 +197,10 @@ func minSubarray(nums []int, p int) int {
 	if k == 0 {
 		return 0
 	}
-
 	n := len(nums)
 	ans := n
 	s := 0
 	last := map[int]int{0: -1}
-
 	for i, v := range nums {
 		s += v
 		mod := s % p

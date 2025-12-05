@@ -33,8 +33,13 @@ func min(a int, b int) int {
 	return a
 }
 func main() {
-	fmt.Println(findAnagrams("cbaebabacd", "abc"))
-	fmt.Println(findAnagrams("abab", "ab"))
+
+	// fmt.Println(countPartitions([]int{10, 10, 3, 7, 6}))
+	// fmt.Println(countPartitions([]int{1, 2, 2}))
+	// fmt.Println(countPartitions([]int{2, 4, 6, 8}))
+
+	fmt.Println(subarraySum([]int{1, 1, 1}, 2))
+	fmt.Println(subarraySum([]int{1, 2, 3}, 3))
 }
 
 type Stack struct {
@@ -158,5 +163,26 @@ func findAnagrams(s string, p string) []int {
 		}
 	}
 
+	return ans
+}
+
+// 3432. 统计元素和差值为偶数的分区方案
+
+// 560. 和为 K 的子数组
+func subarraySum(nums []int, k int) int {
+	// 前缀+ Map 以前缀和为键,值为出现的次数!!!!而不是前缀和本身
+	presum := make(map[int]int)
+	presum[0] = 1
+	sum := 0
+	ans := 0
+	for j := 0; j < len(nums); j++ {
+		sum += nums[j]
+		//对于当前的j ,需要找之前i 使得前缀和j-前缀和i=k
+		// 也就是 前缀和j-k = 前缀和i
+		if k, ok := presum[sum-k]; ok {
+			ans += k
+		}
+		presum[sum]++
+	}
 	return ans
 }
