@@ -3,11 +3,14 @@ package main
 import (
 	"errors"
 	"fmt"
+	"math"
 )
 
 func main() {
-	fmt.Println(maxSlidingWindow([]int{1, 3, -1, -3, 5, 3, 6, 7}, 3))
-	fmt.Println(maxSlidingWindow([]int{1, -1}, 1))
+	// fmt.Println(maxSlidingWindow([]int{1, 3, -1, -3, 5, 3, 6, 7}, 3))
+	// fmt.Println(maxSlidingWindow([]int{1, -1}, 1))
+	fmt.Println(countTriples(5))
+	// fmt.Println(int(math.Sqrt(float64(25))))
 }
 
 // 239. 滑动窗口最大值
@@ -28,7 +31,6 @@ func maxSlidingWindow(nums []int, k int) []int {
 		ans = append(ans, nums[0])
 	}
 	for i := 1; i < len(nums); i++ {
-
 		pv, exi := q.PeekFront()
 		if exi && i > k-1 && pv == nums[i-k] {
 			q.PopFront()
@@ -112,4 +114,19 @@ func (d *Deque) IsEmpty() bool {
 // 获取长度
 func (d *Deque) Len() int {
 	return len(d.items)
+}
+
+// 1925. 统计平方和三元组的数目
+func countTriples(n int) int {
+	res := 0
+	for i := 1; i < n; i++ {
+		for j := i + 1; j < n; j++ {
+			ans := int(math.Sqrt(float64(i*i + j*j)))
+			if ans <= n && ans*ans == i*i+j*j {
+				// fmt.Println("i,j,ans", i, j, ans, ans*ans == i*i+j*j, ans <= n)
+				res += 2
+			}
+		}
+	}
+	return res
 }

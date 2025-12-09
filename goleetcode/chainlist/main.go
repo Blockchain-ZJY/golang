@@ -2,13 +2,18 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/emirpasic/gods/stacks/arraystack"
 )
 
 func main() {
-	l := NewListByArryReverse([]int{1, 2, 4})
-	l1 := NewListByArryReverse([]int{1, 3, 4})
-	ans := mergeTwoLists(l.Next, l1.Next)
-	ans.Next.PrintList()
+	l := NewListByArryReverse([]int{1, 2, 2, 1})
+	l2 := NewListByArryReverse([]int{1, 2, 1})
+	fmt.Println(isPalindrome(l.Next))
+	fmt.Println(isPalindrome(l2.Next))
+	// l1 := NewListByArryReverse([]int{1, 3, 4})
+	// ans := mergeTwoLists(l.Next, l1.Next)
+	// ans.Next.PrintList()
 }
 
 // 19. 删除链表的倒数第 N 个结点
@@ -73,4 +78,97 @@ func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
 		p = p.Next
 	}
 	return head.Next
+}
+
+func getIntersectionNode(headA, headB *ListNode) *ListNode {
+	a, b := headA, headB
+	for headA != nil && headB != nil {
+		a = a.Next
+		b = b.Next
+	}
+	count := 0
+	if a == nil {
+		for b != nil {
+			b = b.Next
+			count++
+		}
+		for i := 0; i < count; i++ {
+			headB = headB.Next
+		}
+		for headB != headA {
+			headA = headA.Next
+			headB = headB.Next
+		}
+		return headB
+	} else {
+		for a != nil {
+			a = a.Next
+			count++
+		}
+		for i := 0; i < count; i++ {
+			headA = headA.Next
+		}
+		for headB != headA {
+			headA = headA.Next
+			headB = headB.Next
+		}
+		return headB
+	}
+
+}
+
+func isPalindrome(head *ListNode) bool {
+	sk := arraystack.New()
+	len := 0 //5/2= 2
+	// 4/2 2
+	a := head
+
+	for a != nil {
+		len++
+		a = a.Next
+	}
+	if len%2 == 1 {
+		count := 0
+		for head != nil {
+			if count < len/2 {
+				sk.Push(head.Val)
+				head = head.Next
+			} else if count == len/2 {
+				count++
+				head = head.Next
+				continue
+			} else {
+				if v, ok := sk.Peek(); ok && v != head.Val {
+					return false
+				} else {
+					sk.Pop()
+					head = head.Next
+				}
+			}
+			count++
+		}
+	}
+	if len%2 == 0 {
+		count := 0
+		for head != nil {
+			if count < len/2 {
+				sk.Push(head.Val)
+				head = head.Next
+
+			} else {
+				if v, ok := sk.Peek(); ok && v != head.Val {
+					return false
+				} else {
+					sk.Pop()
+					head = head.Next
+				}
+			}
+			count++
+		}
+
+	}
+	if sk.Empty() {
+		return true
+	}
+	return false
 }

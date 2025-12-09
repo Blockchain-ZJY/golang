@@ -37,9 +37,9 @@ func main() {
 	// fmt.Println(countPartitions([]int{10, 10, 3, 7, 6}))
 	// fmt.Println(countPartitions([]int{1, 2, 2}))
 	// fmt.Println(countPartitions([]int{2, 4, 6, 8}))
-
-	fmt.Println(subarraySum([]int{1, 1, 1}, 2))
-	fmt.Println(subarraySum([]int{1, 2, 3}, 3))
+	fmt.Println(findAnagrams("abab", "ab"))
+	// fmt.Println(subarraySum([]int{1, 1, 1}, 2))
+	// fmt.Println(subarraySum([]int{1, 2, 3}, 3))
 }
 
 type Stack struct {
@@ -163,6 +163,34 @@ func findAnagrams(s string, p string) []int {
 		}
 	}
 
+	return ans
+}
+func findAnagramsWindow(s string, p string) []int {
+	sint := []int{}
+	pint := []int{}
+	for i := 0; i < len(p); i++ {
+		sint[p[i]-'a']++
+		pint[s[i]-'a']++
+	}
+	issame := func(a []int, b []int) bool {
+		if len(a) != len(b) {
+			return false
+		}
+		for i := range a {
+			if a[i] != b[i] {
+				return false
+			}
+		}
+		return true
+	}
+	ans := []int{}
+	for i := len(p); i < len(s); i++ {
+		pint[s[i]-'a']++
+		pint[s[i-len(p)]-'a']--
+		if issame(pint, sint) {
+			ans = append(ans, i-len(p)+1)
+		}
+	}
 	return ans
 }
 
