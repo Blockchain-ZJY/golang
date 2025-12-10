@@ -1,15 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"sort"
 )
 
 func main() {
-	minWindow("", "")
-	specialTriplets([]int{6, 3, 6})
-	specialTriplets([]int{0, 1, 0, 0})
-	specialTriplets([]int{8, 4, 2, 8, 4})
+	// minWindow("", "")
+	// specialTriplets([]int{6, 3, 6})
+	// specialTriplets([]int{0, 1, 0, 0})
+	// specialTriplets([]int{8, 4, 2, 8, 4})
+	fmt.Println(countPermutations([]int{3, 2, 3, 1}))
 }
 
 func minWindow(s string, t string) string {
@@ -132,3 +134,23 @@ func specialTriplets(nums []int) int {
 // func maxSubArray(nums []int) int {
 
 // }
+const MOD = 1000000007
+
+// 3577. 统计计算机解锁顺序排列数
+func countPermutations(complexity []int) int {
+	start := complexity[0]
+	sort.Ints(complexity)
+	if complexity[0] == complexity[1] || complexity[0] != start {
+		return 0
+	}
+	// 全排列
+	// A2 1 = 2*1
+	// An-1 n-1
+	ans := 1
+	n := len(complexity)
+	for i := 1; i < n; i++ {
+		ans *= i
+		ans = ans % MOD
+	}
+	return ans
+}
