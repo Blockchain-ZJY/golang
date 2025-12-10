@@ -11,7 +11,12 @@ func main() {
 	// specialTriplets([]int{6, 3, 6})
 	// specialTriplets([]int{0, 1, 0, 0})
 	// specialTriplets([]int{8, 4, 2, 8, 4})
-	fmt.Println(countPermutations([]int{3, 2, 3, 1}))
+	// fmt.Println(countPermutations([]int{3, 2, 3, 1}))
+	// fmt.Println(checkInclusion("ab", "eidbcaooo"))
+	fmt.Println(checkInclusion("ab", "a"))
+	fmt.Println(findSubstring("barfoothefoobarman", []string{"foo", "bar"}))
+	fmt.Println(findSubstring("wordgoodgoodgoodbestword", []string{"word", "good", "best", "word"}))
+	fmt.Println(findSubstring("barfoofoobarthefoobarman", []string{"bar", "foo", "the"}))
 }
 
 func minWindow(s string, t string) string {
@@ -151,6 +156,95 @@ func countPermutations(complexity []int) int {
 	for i := 1; i < n; i++ {
 		ans *= i
 		ans = ans % MOD
+	}
+	return ans
+}
+
+// 567. 字符串的排列
+// s1 = "ab" s2 = "eidbaooo"
+func checkInclusion(s1 string, s2 string) bool {
+	sint := make([]int, 26)
+	ssint := make([]int, 26)
+	if len(s2) < len(s1) {
+		return false
+	}
+	for i := 0; i < len(s1); i++ {
+		sint[s1[i]-'a']++
+		ssint[s2[i]-'a']++
+	}
+
+	issame := func(a []int, b []int) bool {
+		if len(a) != len(b) {
+			return false
+		}
+		for i := range a {
+			if a[i] != b[i] {
+				return false
+			}
+		}
+		return true
+	}
+
+	if issame(sint, ssint) {
+		return true
+	}
+	// s1 = "ab" s2 = "eidbaooo"
+	for i := 1; i < len(s2)-len(s1)+1; i++ {
+		ssint[s2[i-1]-'a']--
+		ssint[s2[i+len(s1)-1]-'a']++
+		if issame(sint, ssint) {
+			return true
+		}
+	}
+	return false
+}
+
+// 30. 串联所有单词的子串
+// s = "barfoothefoobarman", words = ["foo","bar"]
+func findSubstring(s string, words []string) []int {
+	target := make(map[string]int)
+	smap := make(map[string]int)
+	ans := []int{}
+	lens := 0
+	for _, v := range words {
+		target[v]++
+		lens += len(v)
+	}
+	wordlen := lens / len(words)
+	if lens > len(s) {
+		return ans
+	}
+	// 判断两个map是否相等
+	issame := func(a, b map[string]int) bool {
+		if len(a) != len(b) {
+			return false
+		}
+		for _, v := range words {
+			if a[v] != b[v] {
+				return false
+			}
+		}
+		return true
+	}
+	for i := 0; i < len(words); i++ {
+		smap[s[i*wordlen:i*wordlen+wordlen]]++
+	}
+	// fmt.Println(smap, target)
+	if issame(target, smap) {
+		ans = append(ans, 0)
+	}
+	for i := 1; i < len(s)-lens+1; i++ {
+		ansmap := make(map[string]int)
+		inded := 0
+		for j := 0; j < len(words); j++ {
+			ansmap[s[i+wordlen*inded:i+wordlen*inded+wordlen]]++
+			inded++
+		}
+		//  s = "barfoothefoobarman", words = ["foo","bar"]
+		// fmt.Println(target, ansmap, "issame", issame(target, ansmap))
+		if issame(target, ansmap) {
+			ans = append(ans, i)
+		}
 	}
 	return ans
 }

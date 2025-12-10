@@ -7,10 +7,9 @@ import (
 )
 
 func main() {
-	l := NewListByArryReverse([]int{1, 2, 2, 1})
-	l2 := NewListByArryReverse([]int{1, 2, 1})
-	fmt.Println(isPalindrome(l.Next))
-	fmt.Println(isPalindrome(l2.Next))
+	l := NewListByArryReverse([]int{1, 2, 3, 4})
+	ans := swapPairs(l.Next)
+	ans.PrintList()
 	// l1 := NewListByArryReverse([]int{1, 3, 4})
 	// ans := mergeTwoLists(l.Next, l1.Next)
 	// ans.Next.PrintList()
@@ -171,4 +170,28 @@ func isPalindrome(head *ListNode) bool {
 		return true
 	}
 	return false
+}
+
+// 简洁版本的翻转链表
+func reverseListBetter(head *ListNode) *ListNode {
+	var root *ListNode
+	for head != nil {
+		head.Next, root, head = root, head, head.Next
+	}
+	return root
+}
+
+func swapPairs(head *ListNode) *ListNode {
+	if head == nil || head.Next == nil {
+		return head
+	}
+	ans := head.Next
+	for head != nil && head.Next != nil {
+		root := head.Next.Next
+		for i := 0; i < 2; i++ {
+			head.Next, root, head = root, head, head.Next
+		}
+		fmt.Println(root.Val, head.Val)
+	}
+	return ans
 }
