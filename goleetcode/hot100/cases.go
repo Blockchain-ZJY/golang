@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"sort"
 
@@ -133,7 +134,7 @@ func threeSum(nums []int) [][]int {
 
 // 7 接雨水
 
-// 42. 接雨水 单调栈-栈存的是下标
+// 接雨水 单调栈-栈存的是下标
 func trap(height []int) int {
 	n := len(height)
 	if n == 1 {
@@ -161,4 +162,49 @@ func trap(height []int) int {
 		stk.Push(i)
 	}
 	return sum
+}
+
+// 8 找到字符串中所有字母异位词
+func findAnagrams(s string, p string) []int {
+	if len(s) < len(p) {
+		return []int{}
+	}
+	res := []int{}
+	m := make(map[[26]int]bool)
+	target := [26]int{}
+	ans := [26]int{}
+	for i := range p {
+		target[p[i]-'a']++
+		ans[s[i]-'a']++
+	}
+	m[target] = true
+	if m[ans] {
+		res = append(res, 0)
+	}
+	// fmt.Println(ans, target, m)
+	for i := 1; i < len(s)-len(p)+1; i++ {
+		fmt.Println(i)
+		ans[s[i-1]-'a']--
+		ans[s[i+len(p)-1]-'a']++
+		if m[ans] {
+			res = append(res, i)
+		}
+	}
+	return res
+}
+
+// 和为 K 的子数组
+func subarraySum(nums []int, k int) int {
+	presum := make(map[int]int) // 值是i之前对应key值出现的次数
+	ans := 0
+	sum := 0
+	presum[0] = 1
+	for i := 0; i < len(nums); i++ {
+		sum += nums[i]
+		if k, ok := presum[sum-k]; ok {
+			ans += k
+		}
+		presum[sum]++
+	}
+	return ans
 }

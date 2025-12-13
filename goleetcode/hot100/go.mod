@@ -1,5 +1,5 @@
-module golang/goleetcode/hot100
+module golang-journey/goleetcode/hot100
 
-go 1.25.4
+go 1.24.10
 
-require github.com/emirpasic/gods v1.18.1 // indirect
+require github.com/emirpasic/gods v1.18.1

@@ -3,19 +3,15 @@ package main
 import (
 	"fmt"
 	"math"
+	"sort"
+	"unicode"
 )
 
 func main() {
-	// fmt.Println(divide(10, 3))
-	// fmt.Println(divide(7, -3))
-	// fmt.Println(countCoveredBuildings(3, [][]int{{1, 2}, {2, 2}, {3, 2}, {2, 1}, {2, 3}, {6, 1}}))
-	// fmt.Println(nextPermutation([]int{1, 2, 3}))
-	// fmt.Println(nextPermutation([]int{3, 2, 1}))
-	// fmt.Println(nextPermutation([]int{1, 1, 5}))
-	// fmt.Println(maxSubArray([]int{-2, 1, -3, 4, -1, 2, 1, -5, 4}))
-	// fmt.Println(maxSubArray([]int{5, 4, -1, 7, 8}))
-	fmt.Println(maxSubArray([]int{-5, -21}))
-	fmt.Println(maxSubArray([]int{-5}))
+	// fmt.Println(validateCoupons([]string{"SAVE20", "", "PHARMA5", "SAVE@20"}, []string{"restaurant", "grocery", "pharmacy", "restaurant"}, []bool{true, true, true, true}))
+	// fmt.Println(merge([][]int{{1, 4}}))
+	rotate([]int{-1, -100, 3, 99}, 2)
+	rotate([]int{1, 2, 3, 4, 5, 6, 7}, 3)
 }
 
 // 29. 两数相除
@@ -170,4 +166,97 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func validateCoupons(code []string, businessLine []string, isActive []bool) []string {
+	ans := [][]string{}
+	for i := range code {
+		temp := true
+
+		for _, v := range code[i] {
+			if !(unicode.IsLetter(v) || unicode.IsDigit(v) || v == '_') {
+				temp = false
+			}
+		}
+		if len(code[i]) == 0 {
+			temp = false
+		}
+		fmt.Println(i, temp)
+		if !(businessLine[i] == "electronics" || businessLine[i] == "grocery" || businessLine[i] == "pharmacy" || businessLine[i] == "restaurant") {
+			temp = false
+		}
+		isActive[i] = temp && isActive[i]
+		if isActive[i] {
+			ans = append(ans, []string{code[i], businessLine[i]})
+		}
+	}
+	order := map[string]int{
+		"electronics": 1,
+		"grocery":     2,
+		"pharmacy":    3,
+		"restaurant":  4,
+	}
+	sort.Slice(ans, func(i, j int) bool {
+		if order[ans[i][1]] != order[ans[j][1]] {
+			return order[ans[i][1]] < order[ans[j][1]]
+		}
+		// 如果业务线相同，再比较 code
+		return ans[i][0] < ans[j][0]
+	})
+	ansa := []string{}
+	for i := range ans {
+		ansa = append(ansa, ans[i][0])
+	}
+	return ansa
+}
+
+// 56. 合并区间
+func merge(intervals [][]int) [][]int {
+	ans := [][]int{}
+	//先按照第一个参数进行排序,依次计算
+	sort.Slice(intervals, func(i, j int) bool {
+		if intervals[i][0] == intervals[j][0] {
+			return intervals[i][1] < intervals[j][1] // 起点相同，按终点排序
+		}
+		return intervals[i][0] < intervals[j][0] // 按起点排序
+	})
+	var bg int
+	var end int
+	for i := range intervals {
+		if i == 0 {
+			bg = intervals[i][0]
+			end = intervals[i][1]
+			if i == len(intervals)-1 {
+				ans = append(ans, []int{bg, end})
+			}
+			continue
+		}
+		if intervals[i][0] <= end {
+			end = max(end, intervals[i][1])
+		} else {
+			ans = append(ans, []int{bg, end})
+			bg, end = intervals[i][0], intervals[i][1]
+
+		}
+		if i == len(intervals)-1 {
+			ans = append(ans, []int{bg, end})
+		}
+	}
+	return ans
+}
+
+// 189. 轮转数组
+func rotate(nums []int, k int) {
+	k = k % len(nums)
+	left := append([]int(nil), nums[len(nums)-k:]...)
+	right := append([]int(nil), nums[:len(nums)-k]...)
+	// fmt.Println(left, right, nums)
+	for i := range nums {
+		if i < k {
+			nums[i] = left[i]
+		} else {
+			nums[i] = right[i-k]
+		}
+	}
+	fmt.Println(left, right, nums)
 }

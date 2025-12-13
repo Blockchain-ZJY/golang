@@ -7,9 +7,7 @@ import (
 )
 
 func main() {
-	l := NewListByArryReverse([]int{1, 2, 3, 4})
-	ans := swapPairs(l.Next)
-	ans.PrintList()
+
 	// l1 := NewListByArryReverse([]int{1, 3, 4})
 	// ans := mergeTwoLists(l.Next, l1.Next)
 	// ans.Next.PrintList()
