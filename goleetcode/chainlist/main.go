@@ -7,10 +7,9 @@ import (
 )
 
 func main() {
-	l := NewListByArryReverse([]int{1, 2, 2, 1})
-	l2 := NewListByArryReverse([]int{1, 2, 1})
-	fmt.Println(isPalindrome(l.Next))
-	fmt.Println(isPalindrome(l2.Next))
+	l := NewListByArryReverse([]int{1, 2, 3, 4})
+	ans := swapPairs(l.Next)
+	ans.PrintList()
 	// l1 := NewListByArryReverse([]int{1, 3, 4})
 	// ans := mergeTwoLists(l.Next, l1.Next)
 	// ans.Next.PrintList()
@@ -171,45 +170,4 @@ func isPalindrome(head *ListNode) bool {
 		return true
 	}
 	return false
-}
-
-//24. 两两交换链表中的节点
-
-func swapPairs(head *ListNode) *ListNode {
-	var ans *ListNode
-	if head != nil && head.Next != nil {
-		ans = head.Next
-	} else {
-		return head
-	}
-	for head != nil && head.Next != nil {
-		// 每次走2步 看是
-		var root *ListNode
-		root = head.Next.Next
-		for i := 0; i < 2; i++ {
-			head.Next, root, head = root, head, head.Next
-		}
-	}
-	return ans
-}
-
-// 25. K 个一组翻转链表
-// 递归方法实现
-func reverseKGroup(head *ListNode, k int) *ListNode {
-	if head == nil {
-		return nil
-	}
-	newhead := head
-	for i := 0; i < k-1; i++ {
-		newhead = newhead.Next
-		if newhead == nil {
-			return head
-		}
-	}
-	root := newhead
-	head.Next, root, head = reverseKGroup(newhead.Next, k), head, head.Next
-	for root != newhead {
-		head.Next, root, head = root, head, head.Next
-	}
-	return newhead
 }

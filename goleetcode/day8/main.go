@@ -162,9 +162,10 @@ func findAnagrams(s string, p string) []int {
 			ans = append(ans, i-n+1)
 		}
 	}
-
 	return ans
 }
+
+// 438. 找到字符串中所有字母异位词
 func findAnagramsWindow(s string, p string) []int {
 	sint := []int{}
 	pint := []int{}

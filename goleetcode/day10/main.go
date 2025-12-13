@@ -11,14 +11,7 @@ func main() {
 	// specialTriplets([]int{6, 3, 6})
 	// specialTriplets([]int{0, 1, 0, 0})
 	// specialTriplets([]int{8, 4, 2, 8, 4})
-	// fmt.Println(countPermutations([]int{3, 2, 3, 1}))
-	// fmt.Println(removeElement([]int{3, 2, 2, 3}, 3))
-	// fmt.Println(removeElement([]int{0, 1, 2, 2, 3, 0, 4, 2}, 2))
-	// fmt.Println(removeElement([]int{0, 0, 1, 1, 1, 2, 2, 3, 3, 4}, 0))
-	fmt.Println(strStr("a", "a"))
-	// fmt.Println(removeDuplicates([]int{1, 2, 2, 4, 5, 5, 5, 6}))
-	// fmt.Println(removeDuplicates([]int{1, 1, 2}))
-	// fmt.Println(removeDuplicates([]int{0, 0, 1, 1, 1, 2, 2, 3, 3, 4}))
+	fmt.Println(countPermutations([]int{3, 2, 3, 1}))
 }
 
 func minWindow(s string, t string) string {
@@ -160,55 +153,4 @@ func countPermutations(complexity []int) int {
 		ans = ans % MOD
 	}
 	return ans
-}
-
-// 26. 删除有序数组中的重复项
-// 两个指针
-func removeDuplicates(nums []int) int {
-	if len(nums) == 1 {
-		return 1
-	}
-	// start 下一个填充的位置
-	// 检测的位置和start-1对比
-	start, end := 0, 1
-	for end < len(nums) {
-		if nums[start] != nums[end] {
-			start++
-			nums[start] = nums[end]
-		}
-		end++
-	}
-	fmt.Println(nums[:start+1])
-	return start
-}
-
-//27. 移除元素
-
-func removeElement(nums []int, val int) int {
-	if len(nums) == 1 && nums[0] == val {
-		return 0
-	}
-	// start 下一个填充的位置
-	// 检测的位置和start-1对比
-	start, end := 0, 0
-	for end < len(nums) {
-		if nums[end] != val {
-			nums[start] = nums[end]
-			start++
-		}
-		end++
-	}
-	fmt.Println(nums[:start+1])
-	return start
-}
-
-// 28. 找出字符串中第一个匹配项的下标
-func strStr(haystack string, needle string) int {
-	n := len(needle)
-	for i := 0; i < len(haystack)-n+1; i++ {
-		if haystack[i:i+n] == needle {
-			return i
-		}
-	}
-	return -1
 }
