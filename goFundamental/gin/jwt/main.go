@@ -12,12 +12,12 @@ type User struct {
 	Password string `json:"password"`
 }
 
-func main() {
+func setupRouter() *gin.Engine {
 	r := gin.Default()
 
 	// Public routes
 	// 公开路由
-	r.POST("/login", LoginHandler)
+	r.GET("/login", LoginHandler)
 
 	// Protected routes group
 	// 受保护的路由组
@@ -26,23 +26,29 @@ func main() {
 	{
 		auth.GET("/profile", ProfileHandler)
 	}
+	return r
+}
 
+func main() {
+	r := setupRouter()
 	r.Run(":8080")
 }
 
 func LoginHandler(c *gin.Context) {
-	var user User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// 从 URL 参数获取用户名和密码
+	username := c.Query("username")
+	password := c.Query("password")
+
+	// 简单校验参数是否为空
+	if username == "" || password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "username and password are required"})
 		return
 	}
 
 	// Mock authentication (Replace with database check)
-	// For demo: username "admin", password "password"
-	// 模拟身份验证 (请替换为数据库检查)
 	// 演示用: 用户名 "admin", 密码 "password"
-	if user.Username == "admin" && user.Password == "password" {
-		tokenString, err := GenerateToken(user.Username)
+	if username == "admin" && password == "password" {
+		tokenString, err := GenerateToken(username)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
 			return
