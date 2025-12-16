@@ -11,6 +11,7 @@ func main() {
 	// l1 := NewListByArryReverse([]int{1, 3, 4})
 	// ans := mergeTwoLists(l.Next, l1.Next)
 	// ans.Next.PrintList()
+
 }
 
 // 19. 删除链表的倒数第 N 个结点
@@ -168,4 +169,33 @@ func isPalindrome(head *ListNode) bool {
 		return true
 	}
 	return false
+}
+
+// 32. 最长有效括号
+func longestValidParentheses(s string) int {
+	stack := arraystack.New()
+	stack.Push(-1)
+	ans := 0
+	for i := range s {
+		if s[i] == '(' {
+			stack.Push(i)
+		} else {
+			stack.Pop()
+			if !stack.Empty() {
+				top, _ := stack.Peek()
+				ans = max(ans, i-top.(int))
+			} else {
+				stack.Push(i)
+			}
+
+		}
+	}
+	return ans
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }

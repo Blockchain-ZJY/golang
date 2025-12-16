@@ -8,11 +8,10 @@ import (
 )
 
 func main() {
-	// fmt.Println(validateCoupons([]string{"SAVE20", "", "PHARMA5", "SAVE@20"}, []string{"restaurant", "grocery", "pharmacy", "restaurant"}, []bool{true, true, true, true}))
-	// fmt.Println(merge([][]int{{1, 4}}))
-	rotate([]int{-1, -100, 3, 99}, 2)
-	rotate([]int{1, 2, 3, 4, 5, 6, 7}, 3)
+	fmt.Println(numberOfWays("PPSPPPSSSPPSPSPPSPPSPSSPPPPPSPPPSPSPSPPPSPPPPPPSSPSPSPPSPPSSSPPSPSPSPPPSPPSPPSPPSSPPSPPS"))
 }
+
+const MOD = 1000000007
 
 // 29. 两数相除
 func divide(dividend int, divisor int) int {
@@ -259,4 +258,69 @@ func rotate(nums []int, k int) {
 		}
 	}
 	fmt.Println(left, right, nums)
+}
+
+func rotateRe(nums []int, k int) {
+	k = k % len(nums)
+	reverse := func(a []int) {
+		l, r := 0, len(a)-1
+		for l < r {
+			a[l], a[r] = a[r], a[l]
+			l++
+			r--
+		}
+	}
+	reverse(nums)
+	fmt.Println(nums[:k])
+	reverse(nums[:k])
+	reverse(nums[k:])
+
+	fmt.Println(nums)
+}
+
+// 除自身以外数组的乘积
+func productExceptSelf(nums []int) []int {
+	ans := []int{}
+	preproduct := make(map[int]int)
+	preproduct[-1] = 1
+	laproduct := make(map[int]int)
+	laproduct[len(nums)] = 1
+	presum := 1
+	for i := range nums {
+		presum *= nums[i]
+		preproduct[i] = presum
+	}
+	presum = 1
+	for i := len(nums) - 1; i >= 0; i-- {
+		presum *= nums[i]
+		laproduct[i] = presum
+	}
+
+	fmt.Println(laproduct, preproduct)
+	for i := 0; i < len(nums); i++ {
+		ans = append(ans, laproduct[i+1]*preproduct[i-1])
+	}
+	return ans
+}
+
+// 2147. 分隔长廊的方案数
+func numberOfWays(corridor string) int {
+	mod := 1_000_000_007
+	ans := 1
+	cnt := 0
+	p1, p2 := -1, -1
+	for i, c := range corridor {
+		if c == 'S' {
+			cnt++
+			if cnt%2 == 0 && cnt > 2 {
+				ans = ans * (p2 - p1) % mod
+			}
+			p1 = p2
+			p2 = i
+		}
+	}
+	if cnt == 0 || cnt%2 != 0 {
+		return 0
+	}
+	return ans
 }
