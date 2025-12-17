@@ -23,10 +23,10 @@ func (h *IntHeap) Pop() interface{} {
 	return x
 }
 func main() {
-	a := [][]int{{0, 1, 2, 0}, {3, 4, 5, 2}, {1, 3, 1, 5}}
-	setZeroes(a)
-	// fmt.Println(firstMissingPositive([]int{7, 8, 9, 11, 12}))
-	// fmt.Println(findKthLargest([]int{3, 2, 1, 5, 6, 4}, 2))
+	//
+	// fmt.Println(searchRange([]int{5, 7, 7, 8, 8, 10}, 6))
+	fmt.Println(findMin([]int{4, 5, 1, 2, 3}))
+	fmt.Println(findMin([]int{2, 1}))
 }
 
 // 小根堆
@@ -184,4 +184,53 @@ func setZeroebetter(matrix [][]int) {
 	if firstRow {
 		clear(matrix[0])
 	}
+}
+
+// 33. 搜索旋转排序数组
+func search(nums []int, target int) int {
+	// 旋转之后会分为两个单调的区间,并且nums[n-1]是第二个区间
+	// 最大值, 对于比较 target 和 nums[n-1]
+	// 如果 < ,target是在第二段 否则 在第一段
+	// n := len(nums)
+	// mid :=
+	return 0
+}
+
+// 153. 寻找旋转排序数组中的最小值
+func findMin(nums []int) int {
+	start, end := 0, len(nums)-1
+	for start <= end {
+		mid := (start + end) / 2
+		if nums[start] <= nums[mid] && nums[mid] <= nums[end] {
+			return nums[start]
+		} else if nums[mid] >= nums[end] {
+			start = mid + 1
+		} else {
+			end = mid
+		}
+	}
+	return nums[start]
+}
+func searchRange(nums []int, target int) []int {
+	l := searchindex(nums, target)
+	if l == len(nums) || nums[l] != target {
+		return []int{-1, -1}
+	} else {
+		return []int{l, searchindex(nums, target+1) - 1}
+	}
+}
+
+// 左闭右开的形式的二分查找
+func searchindex(nums []int, target int) int {
+	// [0,n)
+	l, r := 0, len(nums)
+	for l < r {
+		mid := (l + r) / 2
+		if nums[mid] < target {
+			l = mid + 1
+		} else {
+			r = mid
+		}
+	}
+	return l
 }
