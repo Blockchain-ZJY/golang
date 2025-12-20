@@ -208,3 +208,26 @@ func subarraySum(nums []int, k int) int {
 	}
 	return ans
 }
+
+// 239. 滑动窗口最大值
+// 单调队列
+func maxSlidingWindow(nums []int, k int) []int {
+	q := []int{}
+	ans := []int{}
+	push := func(i int) {
+		for len(q) != 0 && nums[len(q)-1] < nums[i] {
+			q = q[:len(q)-1]
+		}
+		q = append(q, i)
+	}
+	for i, _ := range nums {
+		push(i)
+		if q[0] < i-k+1 {
+			q = q[1:]
+		}
+		if i >= k-1 {
+			ans = append(ans, nums[q[0]])
+		}
+	}
+	return ans
+}

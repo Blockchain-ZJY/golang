@@ -121,7 +121,19 @@ func Stackmatch(s string) bool {
 }
 
 func main() {
-	fmt.Println(generateParenthesis(3))
+	board := [][]byte{
+		{'5', '3', '.', '.', '7', '.', '.', '.', '.'},
+		{'6', '.', '.', '1', '9', '5', '.', '.', '.'},
+		{'.', '9', '8', '.', '.', '.', '.', '6', '.'},
+		{'8', '.', '.', '.', '6', '.', '.', '.', '3'},
+		{'4', '.', '.', '8', '.', '3', '.', '.', '1'},
+		{'7', '.', '.', '.', '2', '.', '.', '.', '6'},
+		{'.', '6', '.', '.', '.', '.', '2', '8', '.'},
+		{'.', '.', '.', '4', '1', '9', '.', '.', '5'},
+		{'.', '.', '.', '.', '8', '.', '.', '7', '9'},
+	}
+
+	solveSudoku(board)
 }
 
 type CharStack struct {
@@ -159,4 +171,72 @@ func (s *CharStack) IsEmpty() bool {
 // 栈大小
 func (s *CharStack) Size() int {
 	return len(s.items)
+}
+
+// 37. 解数独
+func solveSudoku(board [][]byte) {
+	count := 0
+	location := make(map[int][]int)
+	for i := range board {
+		for j := range board[i] {
+			if board[i][j] == '.' {
+				location[count] = []int{i, j}
+				count++
+			}
+		}
+	}
+	// 判断在第 i 行或第 j 列是否存在值 v
+	match := func(i, j int, v byte) bool {
+		// 检查第 i 行
+		for col := 0; col < 9; col++ {
+			if board[i][col] == v {
+				return false // 行里已经有 v
+			}
+		}
+		// 检查第 j 列
+		for row := 0; row < 9; row++ {
+			if board[row][j] == v {
+				return false // 列里已经有 v
+			}
+		}
+		startRow := (i / 3) * 3
+		startCol := (j / 3) * 3
+		for r := startRow; r < startRow+3; r++ {
+			for c := startCol; c < startCol+3; c++ {
+				if board[r][c] == v {
+					return false
+				}
+			}
+		}
+		return true // 行和列都没有 v，可以放置
+	}
+	found := false
+	var fitin func(n int)
+	fitin = func(n int) {
+		if found {
+			return
+		}
+		if n == count {
+			found = true
+			return
+		}
+		nexti := location[n][0]
+		nextj := location[n][1]
+		for v := byte('1'); v <= '9'; v++ {
+			if match(nexti, nextj, v) {
+				board[nexti][nextj] = v
+				fitin(n + 1)
+				if found {
+					return
+				}
+				board[nexti][nextj] = '.'
+			}
+		}
+	}
+	fitin(0)
+	// for _, v := range board {
+	// 	fmt.Println(string(v))
+	// }
+
+	// 这里 result 就是完整的答案路径 fmt.Println("路径:", string(result))
 }

@@ -17,10 +17,11 @@ func main() {
 	// 	{'.', '.', '.', '1', '.', '.', '.', '.', '.'},
 	// 	{'.', '.', '.', '.', '.', '.', '.', '.', '.'},
 	// 	{'.', '.', '.', '.', '.', '.', '.', '.', '.'},
-	// }
-
+	// matrix := [][]int{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}}
+	matrix1 := [][]int{{7}, {9}, {6}}
 	// fmt.Println(maxProfit([]int{5, 4, 3}, []int{1, 1, 0}, 2))
-	fmt.Println(findAllPeople(6, [][]int{{1, 2, 5}, {2, 3, 8}, {1, 5, 10}}, 1))
+	// fmt.Println(findAllPeople(6, [][]int{{1, 2, 5}, {2, 3, 8}, {1, 5, 10}}, 1))
+	fmt.Println(spiralOrder(matrix1))
 	// fmt.Println(maxProfit([]int{5, 4, 3}, []int{1, 1, 0}, 2))
 	// fmt.Println(isValidSudoku(board2))
 }
@@ -174,5 +175,46 @@ func findAllPeople(n int, meetings [][]int, firstPerson int) []int {
 	for node := range knows {
 		ans = append(ans, node)
 	}
+	return ans
+}
+
+// 54. 螺旋矩阵
+func spiralOrder(matrix [][]int) []int {
+	ans := []int{}
+	var getans func(n, m, startx, starty int)
+	getans = func(n, m, startx, starty int) {
+		if n < 1 || m < 1 {
+			return
+		}
+		for i := 0; i < n; i++ {
+			ans = append(ans, matrix[startx][starty+i])
+			fmt.Println("往→走")
+			fmt.Println(matrix[startx][starty+i])
+		}
+		if m <= 1 {
+			return
+		}
+		for i := 1; i < m; i++ {
+			ans = append(ans, matrix[startx+i][starty+n-1])
+			fmt.Println("往↓走")
+			fmt.Println(matrix[startx+i][starty+n-1])
+		}
+		if n-2 < 0 {
+			return
+		}
+		for i := n - 2; i >= 0; i-- {
+			ans = append(ans, matrix[startx+m-1][starty+i])
+			fmt.Println("往←走")
+			fmt.Println(matrix[startx+m-1][starty+i])
+		}
+
+		for i := m - 2; i >= 1; i-- {
+			ans = append(ans, matrix[startx+i][starty])
+			fmt.Println("往↑走")
+			fmt.Println(matrix[startx+i][starty])
+		}
+		getans(n-2, m-2, startx+1, starty+1)
+	}
+	getans(len(matrix[0]), len(matrix), 0, 0)
 	return ans
 }
