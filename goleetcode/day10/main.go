@@ -66,7 +66,6 @@ func minSubArrayLen(target int, nums []int) int {
 	minLen := len(nums) + 1
 	for left := 1; left <= len(nums); left++ {
 		// 找到最小的 j，使得 presum[j] >= target + presum[left]
-		// 找到第一个满足条件的j
 		j := sort.SearchInts(presum, target+presum[left-1])
 		if j <= len(nums) {
 			minLen = min(minLen, j-(left-1))

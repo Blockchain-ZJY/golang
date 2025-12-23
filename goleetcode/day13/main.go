@@ -20,8 +20,7 @@ func main() {
 	// }
 
 	// fmt.Println(maxProfit([]int{5, 4, 3}, []int{1, 1, 0}, 2))
-	// fmt.Println(findAllPeople(5, [][]int{{1, 4, 3}, {0, 4, 3}}, 3))
-	fmt.Println(countAndSay(6))
+	fmt.Println(findAllPeople(6, [][]int{{1, 2, 5}, {2, 3, 8}, {1, 5, 10}}, 1))
 	// fmt.Println(maxProfit([]int{5, 4, 3}, []int{1, 1, 0}, 2))
 	// fmt.Println(isValidSudoku(board2))
 }
@@ -176,30 +175,4 @@ func findAllPeople(n int, meetings [][]int, firstPerson int) []int {
 		ans = append(ans, node)
 	}
 	return ans
-}
-
-// 38. 外观数列
-func countAndSay(n int) string {
-	if n == 1 {
-		return "1"
-	} else if n == 2 {
-		return "11"
-	}
-	ans := []byte{'1', '1'}
-	for i := 3; i <= n; i++ {
-		temp := []byte{}
-		for j := 0; j < len(ans); j++ {
-			// fmt.Println("数组", string(ans), "开始处理第", j, "个字母", string(ans[j]))
-			startv := ans[j]
-			count := 1
-			for j+1 < len(ans) && ans[j] == ans[j+1] {
-				count++
-				j++
-			}
-			// fmt.Println("结果:", "数字", string(startv), "出现了", byte(count), "次")
-			temp = append(temp, byte(count+'0'), startv)
-		}
-		ans = temp
-	}
-	return string(ans)
 }

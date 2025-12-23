@@ -25,8 +25,8 @@ func (h *IntHeap) Pop() interface{} {
 func main() {
 	//
 	// fmt.Println(searchRange([]int{5, 7, 7, 8, 8, 10}, 6))
-	fmt.Println(findMin([]int{4, 5, 1, 2, 3}))
-	fmt.Println(findMin([]int{2, 1}))
+	fmt.Println(search([]int{4, 5, 6, 7, 0, 1, 2}, 0))
+	// fmt.Println(findMin([]int{2, 1}))
 }
 
 // 小根堆
@@ -193,7 +193,26 @@ func search(nums []int, target int) int {
 	// 如果 < ,target是在第二段 否则 在第一段
 	// n := len(nums)
 	// mid :=
-	return 0
+	index := findMin(nums)
+	// 二分找到target
+	var l int
+	var r int
+	if target <= nums[len(nums)-1] {
+		l, r = index, len(nums)
+	} else {
+		l, r = 0, index
+	}
+	for l < r {
+		mid := (l + r) / 2
+		if nums[mid] == target {
+			return mid
+		} else if nums[mid] < target {
+			l = mid + 1
+		} else {
+			r = mid
+		}
+	}
+	return -1
 }
 
 // 153. 寻找旋转排序数组中的最小值
@@ -202,15 +221,16 @@ func findMin(nums []int) int {
 	for start <= end {
 		mid := (start + end) / 2
 		if nums[start] <= nums[mid] && nums[mid] <= nums[end] {
-			return nums[start]
-		} else if nums[mid] >= nums[end] {
+			return start
+		} else if nums[mid] > nums[end] {
 			start = mid + 1
 		} else {
 			end = mid
 		}
 	}
-	return nums[start]
+	return start
 }
+
 func searchRange(nums []int, target int) []int {
 	l := searchindex(nums, target)
 	if l == len(nums) || nums[l] != target {
