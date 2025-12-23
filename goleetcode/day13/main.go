@@ -20,7 +20,8 @@ func main() {
 	// }
 
 	// fmt.Println(maxProfit([]int{5, 4, 3}, []int{1, 1, 0}, 2))
-	fmt.Println(findAllPeople(6, [][]int{{1, 2, 5}, {2, 3, 8}, {1, 5, 10}}, 1))
+	// fmt.Println(findAllPeople(5, [][]int{{1, 4, 3}, {0, 4, 3}}, 3))
+	fmt.Println(countAndSay(6))
 	// fmt.Println(maxProfit([]int{5, 4, 3}, []int{1, 1, 0}, 2))
 	// fmt.Println(isValidSudoku(board2))
 }
@@ -138,36 +139,36 @@ func findAllPeople(n int, meetings [][]int, firstPerson int) []int {
 	// 如果其中有一个人知道秘密,图遍历所有节点标记知道秘密的人
 
 	knows := map[int]bool{0: true, firstPerson: true}
-	for i := range meetings {
+	for i := 0; i < len(meetings); i++ {
 		// 不越界并且是同一时间
 		graph := make(map[int][]int)
+		vis := make(map[int]bool)
 		x, y := meetings[i][0], meetings[i][1]
 		graph[x] = append(graph[x], y)
 		graph[y] = append(graph[y], x)
-		for ; i+1 < len(meetings) && meetings[i][2] == meetings[i+1][2]; i++ {
-			x, y := meetings[i][0], meetings[i][1]
+
+		for ; i < len(meetings)-1 && meetings[i][2] == meetings[i+1][2]; i++ {
+			x, y := meetings[i+1][0], meetings[i+1][1]
 			graph[x] = append(graph[x], y)
 			graph[y] = append(graph[y], x)
 		}
+		fmt.Println(graph)
 		var dfs func(start int)
 		dfs = func(start int) {
-			if knows[start] {
-				return
-			}
+			vis[start] = true
 			knows[start] = true
 			for _, neighbor := range graph[start] {
-				dfs(neighbor)
+				if !vis[neighbor] {
+					dfs(neighbor)
+				}
 			}
 		}
-		fmt.Println(knows)
-		// 对与当前图,遍历所有节点
+
 		for node := range graph {
-			fmt.Println("node", node)
 			if knows[node] {
 				dfs(node)
 			}
 		}
-		// fmt.Println(i, graph)
 	}
 
 	ans := []int{}
@@ -175,4 +176,30 @@ func findAllPeople(n int, meetings [][]int, firstPerson int) []int {
 		ans = append(ans, node)
 	}
 	return ans
+}
+
+// 38. 外观数列
+func countAndSay(n int) string {
+	if n == 1 {
+		return "1"
+	} else if n == 2 {
+		return "11"
+	}
+	ans := []byte{'1', '1'}
+	for i := 3; i <= n; i++ {
+		temp := []byte{}
+		for j := 0; j < len(ans); j++ {
+			// fmt.Println("数组", string(ans), "开始处理第", j, "个字母", string(ans[j]))
+			startv := ans[j]
+			count := 1
+			for j+1 < len(ans) && ans[j] == ans[j+1] {
+				count++
+				j++
+			}
+			// fmt.Println("结果:", "数字", string(startv), "出现了", byte(count), "次")
+			temp = append(temp, byte(count+'0'), startv)
+		}
+		ans = temp
+	}
+	return string(ans)
 }
