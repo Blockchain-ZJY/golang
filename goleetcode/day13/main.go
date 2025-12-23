@@ -6,24 +6,33 @@ import (
 )
 
 func main() {
-	// fmt.Println(searchInsert([]int{1, 3, 5, 6}, 2))
-	// board2 := [][]byte{
-	// 	{'.', '.', '4', '.', '.', '.', '6', '3', '.'},
-	// 	{'.', '.', '.', '.', '.', '.', '.', '.', '.'},
-	// 	{'5', '.', '.', '.', '.', '.', '.', '9', '.'},
-	// 	{'.', '.', '.', '5', '6', '.', '.', '.', '.'},
-	// 	{'4', '.', '3', '.', '.', '.', '.', '.', '1'},
-	// 	{'.', '.', '.', '7', '.', '.', '.', '.', '.'},
-	// 	{'.', '.', '.', '1', '.', '.', '.', '.', '.'},
-	// 	{'.', '.', '.', '.', '.', '.', '.', '.', '.'},
-	// 	{'.', '.', '.', '.', '.', '.', '.', '.', '.'},
-	// matrix := [][]int{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}}
-	matrix1 := [][]int{{7}, {9}, {6}}
-	// fmt.Println(maxProfit([]int{5, 4, 3}, []int{1, 1, 0}, 2))
-	// fmt.Println(findAllPeople(6, [][]int{{1, 2, 5}, {2, 3, 8}, {1, 5, 10}}, 1))
-	fmt.Println(spiralOrder(matrix1))
-	// fmt.Println(maxProfit([]int{5, 4, 3}, []int{1, 1, 0}, 2))
-	// fmt.Println(isValidSudoku(board2))
+	// // fmt.Println(searchInsert([]int{1, 3, 5, 6}, 2))
+	// // board2 := [][]byte{
+	// // 	{'.', '.', '4', '.', '.', '.', '6', '3', '.'},
+	// // 	{'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+	// // 	{'5', '.', '.', '.', '.', '.', '.', '9', '.'},
+	// // 	{'.', '.', '.', '5', '6', '.', '.', '.', '.'},
+	// // 	{'4', '.', '3', '.', '.', '.', '.', '.', '1'},
+	// // 	{'.', '.', '.', '7', '.', '.', '.', '.', '.'},
+	// // 	{'.', '.', '.', '1', '.', '.', '.', '.', '.'},
+	// // 	{'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+	// // 	{'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+	// // matrix := [][]int{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}}
+	// matrix1 := [][]int{{7}, {9}, {6}}
+	// // fmt.Println(maxProfit([]int{5, 4, 3}, []int{1, 1, 0}, 2))
+	// // fmt.Println(findAllPeople(6, [][]int{{1, 2, 5}, {2, 3, 8}, {1, 5, 10}}, 1))
+	// fmt.Println(spiralOrder(matrix1))
+	// // fmt.Println(maxProfit([]int{5, 4, 3}, []int{1, 1, 0}, 2))
+	// // fmt.Println(isValidSudoku(board2))
+	// a := &TreeNode{
+	// 	Left:  nil,
+	// 	Right: nil,
+	// 	Val:   0,
+	// }
+	matrix := [][]int{{1, 4, 7, 11, 15}, {2, 5, 8, 12, 19}, {3, 6, 9, 16, 22}, {10, 13, 14, 17, 24}, {18, 21, 23, 26, 30}}
+	// // matrix := [][]int{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
+	// fmt.Println(isValidBST(a))
+	fmt.Println(searchMatrix(matrix, -1))
 }
 
 // 35. 搜索插入位置
@@ -216,5 +225,129 @@ func spiralOrder(matrix [][]int) []int {
 		getans(n-2, m-2, startx+1, starty+1)
 	}
 	getans(len(matrix[0]), len(matrix), 0, 0)
+	return ans
+}
+
+func minDeletionSize(strs []string) (ans int) {
+	n, m := len(strs), len(strs[0])
+	a := make([]string, n) // 最终得到的字符串数组
+	//
+next:
+	for j := 0; j < m; j++ {
+		for i := 0; i < n-1; i++ {
+			if a[i]+string(strs[i][j]) > a[i+1]+string(strs[i+1][j]) {
+				// j 列不是升序，必须删
+				ans++
+				continue next
+			}
+			// j 列是升序，不删更好
+			for i, s := range strs {
+				a[i] += string(s[j])
+			}
+		}
+	}
+	return
+}
+
+// 旋转图像
+// 矩阵顺时针旋转90° = 对角线翻转 + 每行对调
+func rotate(matrix [][]int) {
+	for i := 0; i < len(matrix); i++ {
+		for j := i + 1; j < len(matrix); j++ {
+			matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+		}
+	}
+	//每行对调
+	for i := 0; i < len(matrix); i++ {
+		l, r := 0, len(matrix)-1
+		for l < r {
+			matrix[i][l], matrix[i][r] = matrix[i][r], matrix[i][l]
+			l++
+			r--
+		}
+	}
+}
+
+type TreeNode struct {
+	Val   int
+	Left  *TreeNode
+	Right *TreeNode
+}
+
+var pre *TreeNode
+
+// 中序遍历
+func isValidBST(root *TreeNode) bool {
+
+	if root == nil {
+		return true
+	}
+	left := isValidBST(root.Left)
+	if pre != nil && root.Val <= pre.Val {
+		return false
+	}
+	pre = root
+	right := isValidBST(root.Right)
+	return left && right
+}
+
+// 240. 搜索二维矩阵 II
+func searchMatrix(matrix [][]int, target int) bool {
+	// 从右上角开始
+	i, j := 0, len(matrix[0])-1
+	for {
+		if matrix[i][j] == target {
+			return true
+		}
+		if matrix[i][j] > target {
+			j--
+		} else {
+			i++
+		}
+		if i > len(matrix)-1 || j < 0 {
+			return false
+		}
+		fmt.Println(matrix[i][j])
+	}
+	return false
+}
+
+// 59. 螺旋矩阵 II
+func generateMatrix(n int) [][]int {
+	ans := make([][]int, n)
+	for i := range ans {
+		ans[i] = make([]int, n)
+	}
+	v := 1
+	var getans func(n, startx, starty int)
+	getans = func(n, startx, starty int) {
+		if n < 1 {
+			return
+		}
+		for i := 0; i < n; i++ {
+			ans[startx][starty+i] = v
+			v++
+		}
+		if n <= 1 {
+			return
+		}
+		for i := 1; i < n; i++ {
+			ans[startx+i][starty+n-1] = v
+			v++
+		}
+		if n-2 < 0 {
+			return
+		}
+		for i := n - 2; i >= 0; i-- {
+			ans[startx+n-1][starty+i] = v
+			v++
+		}
+		for i := n - 2; i >= 1; i-- {
+			ans[startx+i][starty] = v
+			v++
+		}
+		getans(n-2, startx+1, starty+1)
+	}
+	getans(n, 0, 0)
 	return ans
 }

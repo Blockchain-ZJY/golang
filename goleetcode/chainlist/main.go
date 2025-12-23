@@ -199,3 +199,90 @@ func max(a, b int) int {
 	}
 	return b
 }
+
+func reverseList1(head *ListNode) *ListNode {
+	var root *ListNode
+	for head != nil {
+		head.Next, root, head = root, head, head.Next
+	}
+	return root
+}
+
+func hasCycle(head *ListNode) bool {
+	if head == nil {
+		return false
+	}
+	fast := head
+	slow := head
+	for fast.Next != nil && fast.Next.Next != nil {
+		fast = fast.Next.Next
+		slow = slow.Next
+		if fast == slow {
+			return true
+		}
+	}
+	return false
+}
+
+func detectCycle(head *ListNode) *ListNode {
+	m := make(map[*ListNode]bool)
+	for head != nil {
+		if _, ok := m[head]; ok {
+			return head
+		}
+		m[head] = true
+		head = head.Next
+	}
+	return nil
+}
+func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
+	dummy := &ListNode{}
+	cur := dummy
+	carry := 0
+	for l1 != nil || l2 != nil || carry != 0 {
+		sum := carry
+		if l1 != nil {
+			sum += l1.Val
+			l1 = l1.Next
+		}
+		if l2 != nil {
+			sum += l2.Val
+			l2 = l2.Next
+		}
+		cur.Next = &ListNode{Val: sum % 10}
+		cur = cur.Next
+		carry = sum / 10
+	}
+	return dummy.Next
+}
+
+// 删除链表的倒数第 N 个结点
+func removeNthFromEnd1(head *ListNode, n int) *ListNode {
+	if head.Next == nil {
+		return nil
+	}
+	len := 0
+	s := head
+	for s != nil {
+		len++
+		s = s.Next
+	}
+	if n == len {
+		return head.Next
+	}
+
+	fast, slow := head, head
+	for i := 0; i < n && fast.Next != nil; i++ {
+		fast = fast.Next
+	}
+	for fast.Next != nil {
+		fast = fast.Next
+		slow = slow.Next
+	}
+	if n == 1 {
+		slow.Next = nil
+		return head
+	}
+	slow.Next = slow.Next.Next
+	return head
+}
