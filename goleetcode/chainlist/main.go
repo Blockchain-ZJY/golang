@@ -286,3 +286,46 @@ func removeNthFromEnd1(head *ListNode, n int) *ListNode {
 	slow.Next = slow.Next.Next
 	return head
 }
+
+// 归并排序(链表版本)
+func sortList(head *ListNode) *ListNode {
+	if head == nil || head.Next == nil {
+		return head
+	}
+	r := getmid(head)
+	head = sortList(head)
+	r = sortList(r)
+	return merge(head, r)
+}
+
+func getmid(head *ListNode) *ListNode {
+	f, s := head.Next, head
+	for f != nil && f.Next != nil {
+		f = f.Next.Next
+		s = s.Next
+	}
+	t := s.Next
+	s.Next = nil
+	return t
+}
+
+func merge(l, r *ListNode) *ListNode {
+	dummy := &ListNode{}
+	cur := dummy
+	for l != nil && r != nil {
+		if l.Val < r.Val {
+			cur.Next = l
+			l = l.Next
+		} else {
+			cur.Next = r
+			r = r.Next
+		}
+		cur = cur.Next
+	}
+	if l == nil {
+		cur.Next = r
+	} else {
+		cur.Next = l
+	}
+	return dummy.Next
+}

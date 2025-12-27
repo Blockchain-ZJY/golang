@@ -11,7 +11,8 @@ import (
 func main() {
 	// fmt.Println(multiply("2", "3"))
 	// fmt.Println(addStrings("0", "0"))
-	fmt.Println(addToArrayForm([]int{1, 2, 0, 0}, 44))
+	// fmt.Println(addToArrayForm([]int{1, 2, 0, 0}, 44))
+	fmt.Println(minimumBoxes([]int{5, 5, 5}, []int{2, 4, 2, 7}))
 }
 
 //977.有序数组的平方
@@ -284,7 +285,7 @@ func addToArrayForm(num []int, k int) []int {
 func maxTwoEvents(events [][]int) int {
 	ans := 0
 	slices.SortFunc(events, func(a, b []int) int { // 如果是负数代表 a<b
-		return a[1] - b[2] // 小的在前就是升序
+		return a[1] - b[1] // 小的在前就是升序
 	})
 	type pair struct {
 		endTime, value int
@@ -292,7 +293,53 @@ func maxTwoEvents(events [][]int) int {
 	st := []pair{{}} //哨兵
 	for _, e := range events {
 		starttime, value := e[0], e[2]
-		i:=sort.Search(len(st),func(i int) bool {st[i].endTime>=})
+		//要的是最后一个满足条件的,因为越往后它的价值越高
+		// sort.Search 返回的是“第一个 true 的位置”，不是“最后一个 true 的位置”。
+		i := sort.Search(len(st), func(i int) bool { return st[i].endTime >= starttime }) - 1
+		ans = max(ans, st[i].value+value)
+		if value > st[len(st)-1].value {
+			st = append(st, pair{e[1], value})
+		}
 	}
 	return ans
+}
+
+type Node struct {
+	Val    int
+	Random *Node
+	Next   *Node
+}
+
+func copyRandomList(head *Node) *Node {
+	m := make(map[*Node]*Node)
+	cur := head
+	for cur != nil {
+		t := &Node{
+			Val: cur.Val,
+		}
+		m[cur] = t
+		cur = cur.Next
+	}
+	cur = head
+	for cur != nil {
+		m[cur].Next = m[cur.Next]
+		m[cur].Random = m[cur.Random]
+		cur = cur.Next
+	}
+	return m[head]
+}
+
+// 3074. 重新分装苹果
+func minimumBoxes(apple []int, capacity []int) int {
+	sum := 0
+	for i := range apple {
+		sum += apple[i]
+	}
+	sort.Ints(capacity)
+	l := len(capacity) - 1
+	for sum > 0 {
+		sum -= capacity[l]
+		l--
+	}
+	return len(capacity) - l - 1
 }

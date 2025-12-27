@@ -193,7 +193,7 @@ func findAnagrams(s string, p string) []int {
 	return res
 }
 
-// 和为 K 的子数组
+// 9. 和为 K 的子数组
 func subarraySum(nums []int, k int) int {
 	presum := make(map[int]int) // 值是i之前对应key值出现的次数
 	ans := 0
@@ -230,4 +230,72 @@ func maxSlidingWindow(nums []int, k int) []int {
 		}
 	}
 	return ans
+}
+
+// 234. 回文链表
+type ListNode struct {
+	Val  int
+	Next *ListNode
+}
+
+// 快慢指针,后半部分进行翻转
+func isPalindrome(head *ListNode) bool {
+	if head.Next == nil {
+		return true
+	}
+	f, s := head.Next, head
+	for f != nil && f.Next != nil {
+		s = s.Next
+		f = f.Next.Next
+	}
+	var rvslist func(h *ListNode) *ListNode
+	rvslist = func(h *ListNode) *ListNode {
+		var root *ListNode
+		for h != nil {
+			h.Next, root, h = root, h, h.Next
+		}
+		return root
+	}
+	root := rvslist(s.Next)
+	for root != nil {
+		if root.Val != head.Val {
+			return false
+		}
+		root = root.Next
+		head = head.Next
+	}
+	return true
+}
+
+// 21. 合并两个有序链表
+func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
+	if list1 == nil {
+		return list2
+	}
+	if list2 == nil {
+		return list1
+	}
+
+	head := &ListNode{}
+	p := head
+	for list1 != nil || list2 != nil {
+		if list1 == nil {
+			p.Next = list2
+			return head.Next
+		}
+		if list2 == nil {
+			p.Next = list1
+			return head.Next
+		}
+		if list1.Val < list2.Val {
+			p.Next = list1
+			list1 = list1.Next
+		} else {
+			p.Next = list2
+
+			list2 = list2.Next
+		}
+		p = p.Next
+	}
+	return head.Next
 }

@@ -121,19 +121,19 @@ func Stackmatch(s string) bool {
 }
 
 func main() {
-	board := [][]byte{
-		{'5', '3', '.', '.', '7', '.', '.', '.', '.'},
-		{'6', '.', '.', '1', '9', '5', '.', '.', '.'},
-		{'.', '9', '8', '.', '.', '.', '.', '6', '.'},
-		{'8', '.', '.', '.', '6', '.', '.', '.', '3'},
-		{'4', '.', '.', '8', '.', '3', '.', '.', '1'},
-		{'7', '.', '.', '.', '2', '.', '.', '.', '6'},
-		{'.', '6', '.', '.', '.', '.', '2', '8', '.'},
-		{'.', '.', '.', '4', '1', '9', '.', '.', '5'},
-		{'.', '.', '.', '.', '8', '.', '.', '7', '9'},
-	}
-
-	solveSudoku(board)
+	// board := [][]byte{
+	// 	{'5', '3', '.', '.', '7', '.', '.', '.', '.'},
+	// 	{'6', '.', '.', '1', '9', '5', '.', '.', '.'},
+	// 	{'.', '9', '8', '.', '.', '.', '.', '6', '.'},
+	// 	{'8', '.', '.', '.', '6', '.', '.', '.', '3'},
+	// 	{'4', '.', '.', '8', '.', '3', '.', '.', '1'},
+	// 	{'7', '.', '.', '.', '2', '.', '.', '.', '6'},
+	// 	{'.', '6', '.', '.', '.', '.', '2', '8', '.'},
+	// 	{'.', '.', '.', '4', '1', '9', '.', '.', '5'},
+	// 	{'.', '.', '.', '.', '8', '.', '.', '7', '9'},
+	// }
+	fmt.Println(combinationSum([]int{2, 3, 5}, 8))
+	// solveSudoku(board)
 }
 
 type CharStack struct {
@@ -239,4 +239,26 @@ func solveSudoku(board [][]byte) {
 	// }
 
 	// 这里 result 就是完整的答案路径 fmt.Println("路径:", string(result))
+}
+
+// 39. 组合总和
+func combinationSum(candidates []int, target int) (ans [][]int) {
+	var backtracking func(start, sum int)
+	path := []int{}
+	backtracking = func(start, sum int) {
+		if sum > target {
+			return
+		}
+		if sum == target {
+			fmt.Println(path)
+			ans = append(ans, append([]int(nil), path...))
+		}
+		for i := start; i < len(candidates); i++ {
+			path = append(path, candidates[i])
+			backtracking(i, sum+candidates[i])
+			path = path[:len(path)-1]
+		}
+	}
+	backtracking(0, 0)
+	return
 }

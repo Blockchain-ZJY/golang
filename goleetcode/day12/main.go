@@ -23,10 +23,7 @@ func (h *IntHeap) Pop() interface{} {
 	return x
 }
 func main() {
-	//
-	// fmt.Println(searchRange([]int{5, 7, 7, 8, 8, 10}, 6))
 	fmt.Println(search([]int{4, 5, 6, 7, 0, 1, 2}, 0))
-	// fmt.Println(findMin([]int{2, 1}))
 }
 
 // 小根堆
@@ -68,7 +65,6 @@ func firstMissingPositive(nums []int) int {
 			nums[i] = -1
 		}
 	}
-
 	for i := range nums {
 		for nums[i] > 0 && nums[i] != i+1 {
 			if nums[i] == nums[nums[i]-1] {
@@ -108,7 +104,6 @@ func maxSlidingWindow(nums []int, k int) []int {
 	for i := 0; i < k; i++ {
 		push(i)
 	}
-
 	ans := make([]int, 0)
 	ans = append(ans, nums[queue[0]])
 	for i := k; i < len(nums); i++ {
