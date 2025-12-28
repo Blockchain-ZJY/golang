@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
+	fmt.Print(subsets([]int{1, 2, 3, 4}))
 
-	fmt.Println(findMinArrowShots([][]int{{10, 16}, {2, 8}, {1, 6}, {7, 12}}))
 }
 
 func searchInsert(nums []int, target int) int {
@@ -320,5 +320,334 @@ func findMinArrowShots(points [][]int) (ans int) {
 		}
 		ans++
 	}
+	return
+}
+
+// 1351. 统计有序矩阵中的负数
+func countNegatives(grid [][]int) (ans int) {
+	for i := range grid {
+		for j := range grid[i] {
+			if grid[i][j] < 0 {
+				ans++
+			}
+		}
+	}
+	return
+}
+
+// 1351. 统计有序矩阵中的负数
+func countNegativesSearch(grid [][]int) (ans int) {
+	m := len(grid)
+	n := len(grid[0])
+	for i := 0; i < m; i++ {
+		//对于每一行进行二分查找
+		//3,2,1,-1 查找-1的位置
+		x := sort.Search(len(grid[i]), func(k int) bool {
+			return grid[i][k] < 0
+		})
+		ans += n - x
+
+	}
+	return ans
+}
+
+// 46. 全排列-回溯法
+// 题目大意：给定一个不含重复数字的数组 nums ，返回其 所有可能的全排列 。你可以 按任意顺序 返回答案。
+// 输入：nums = [1,2,3]
+// 输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+func permute(nums []int) (ans [][]int) {
+	n := len(nums)
+	path := []int{}
+	m := make(map[int]bool)
+	for i := 0; i < n; i++ {
+		m[i] = false
+	}
+	var bc func()
+	bc = func() {
+		if len(path) == n {
+			t := append([]int(nil), path...)
+			ans = append(ans, t)
+		}
+		for i := 0; i < n; i++ {
+			// fmt.Println(path)
+			if m[i] == false {
+				path = append(path, nums[i])
+				m[i] = true
+				bc()
+				m[i] = false
+				path = path[:len(path)-1]
+			}
+		}
+	}
+	bc()
+	return ans
+}
+
+// 47. 全排列 II-回溯法 排列要从0开始,多一个used数组来判断是否被选择过
+// 题目大意：给定一个可包含重复数字的序列 nums ，按任意顺序 返回所有不重复的全排列。
+// 输入：nums = [1,1,2]
+// 输出：[[1,1,2], [1,2,1], [2,1,1]]
+func permuteUnique(nums []int) (ans [][]int) {
+	sort.Ints(nums)
+	n := len(nums)
+	used := make([]bool, n)
+	path := make([]int, 0, n)
+
+	var dfs func()
+	dfs = func() {
+		if len(path) == n {
+			tmp := append([]int(nil), path...)
+			ans = append(ans, tmp)
+			return
+		}
+
+		for i := 0; i < n; i++ {
+			if used[i] {
+				continue
+			}
+			// 1 2 2
+			//相同的数递归出来的结果是一致的,比如  我第一轮选了1
+			// 在 1 2 之间排列 1 2 / 2 1
+			// 第二次我选择第二个1 同样是在剩下 1 2 之间排序(去掉重复结果,所以要排序)
+			if i > 0 && nums[i] == nums[i-1] && !used[i-1] {
+				continue
+			}
+			used[i] = true
+			path = append(path, nums[i])
+			dfs()
+			used[i] = false
+			path = path[:len(path)-1]
+		}
+	}
+
+	dfs()
+	return ans
+}
+
+// 39. 组合总和
+// 题目大意：给你一个 无重复元素 的整数数组 candidates 和一个目标整数 target ，找出 candidates 中可以使数字和为目标数 target 的 所有 不同组合 ，并以列表形式返回。你可以按 任意顺序 返回这些组合。
+// candidates 中的 同一个 数字可以 无限制重复被选取 。如果至少一个数字的被选数量不同，则两种组合是不同的。
+// 输入：candidates = [2,3,6,7], target = 7
+// 输出：[[2,2,3],[7]]
+func combinationSum(candidates []int, target int) (ans [][]int) {
+	path := []int{}
+	var dfs func(start, sum int, path []int)
+	dfs = func(start, sum int, path []int) {
+		if sum > target {
+			return
+		}
+		if sum == target {
+			t := append([]int(nil), path...)
+			ans = append(ans, t)
+			return
+		}
+		for i := start; i < len(candidates); i++ {
+			path = append(path, candidates[i])
+			sum += path[len(path)-1]
+			dfs(i, sum, path) // 可以被无限次选择所以从i开始
+			sum -= path[len(path)-1]
+			path = path[:len(path)-1]
+		}
+	}
+	sum := 0
+	dfs(0, sum, path)
+	return ans
+}
+
+// 40. 组合总和 II 会有重复的方案,同理,存在同样的值需要去重,否则选出来的结果会重复
+// 题目大意：给定一个候选人编号的集合 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。
+// candidates 中的每个数字在每个组合中只能使用 一次 。
+// 注意：解集不能包含重复的组合。
+// 输入：candidates = [10,1,2,7,6,1,5], target = 8
+// 输出：[[1,1,6],[1,2,5],[1,7],[2,6]]
+func combinationSum2(candidates []int, target int) (ans [][]int) {
+	//
+	sort.Ints(candidates)
+	path := []int{}
+	var dfs func(start, sum int, path []int)
+	dfs = func(start, sum int, path []int) {
+		if sum > target {
+			return
+		}
+		if sum == target {
+			t := append([]int(nil), path...)
+			ans = append(ans, t)
+			return
+		}
+		// 1 1 2 5 6 7 10
+		for i := start; i < len(candidates); i++ {
+			// i > start 决定了第一次出现的同代表不去掉
+			// 后面再出现一样的就不算了
+			if i > start && candidates[i-1] == candidates[i] {
+				continue
+			}
+			path = append(path, candidates[i])
+			sum += path[len(path)-1]
+			dfs(i+1, sum, path) // 同一个位置不能重复加,从下一个开始加
+			sum -= path[len(path)-1]
+			path = path[:len(path)-1]
+		}
+	}
+	sum := 0
+	dfs(0, sum, path)
+	return ans
+}
+
+// 子集 I nums 中的所有元素 互不相同(不需要排序)
+// 题目大意：给你一个整数数组 nums ，数组中的元素 互不相同 。返回该数组所有可能的子集（幂集）。
+// 解集 不能 包含重复的子集。你可以按 任意顺序 返回解集。
+// 输入：nums = [1,2,3]
+// 输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+func subsets(nums []int) (ans [][]int) {
+	path := []int{}
+	var dfs func(start int, path []int)
+	dfs = func(start int, path []int) {
+		// 每层都加,不需要剪枝 !!!!
+		t := append([]int(nil), path...)
+		ans = append(ans, t)
+		// 1 2 2 5 6 7 10
+		for i := start; i < len(nums); i++ {
+			// i > start 决定了第一次出现相同代表不去掉
+			// 后面再出现一样的就不算了
+			if i > start && nums[i-1] == nums[i] {
+				continue
+			}
+			path = append(path, nums[i])
+			dfs(i+1, path) // 同一个位置不能重复加,从下一个开始加
+			path = path[:len(path)-1]
+		}
+	}
+	dfs(0, path)
+	return ans
+}
+
+// 子集 II
+// 题目大意：给你一个整数数组 nums ，其中可能包含重复元素，请你返回该数组所有可能的子集（幂集）。
+// 解集 不能 包含重复的子集。返回的解集中，子集可以按 任意顺序 排列。
+// 输入：nums = [1,2,2]
+// 输出：[[],[1],[1,2],[1,2,2],[2],[2,2]]
+func subsetsWithDup(nums []int) (ans [][]int) {
+	sort.Ints(nums)
+	path := []int{}
+	var dfs func(start int, path []int)
+	dfs = func(start int, path []int) {
+		// 每层都加,不需要剪枝 !!!!
+		t := append([]int(nil), path...)
+		ans = append(ans, t)
+		// 1 1 2 5 6 7 10
+		for i := start; i < len(nums); i++ {
+			// i > start 决定了第一次出现的同代表不去掉
+			// 后面再出现一样的就不算了
+			if i > start && nums[i-1] == nums[i] {
+				continue
+			}
+			path = append(path, nums[i])
+			dfs(i+1, path) // 同一个位置不能重复加,从下一个开始加
+			path = path[:len(path)-1]
+		}
+	}
+	dfs(0, path)
+	return ans
+}
+
+// 79. 单词搜索
+// 题目大意：给定一个 m x n 二维字符网格 board 和一个字符串单词 word 。如果 word 存在于网格中，返回 true ；否则，返回 false 。
+// 单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。
+// 输入：board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
+// 输出：true
+func exist(board [][]byte, word string) bool {
+	freq := map[byte]int{}
+	for i := range board {
+		for j := range board[0] {
+			freq[board[i][j]]++
+		}
+	}
+	for i := 0; i < len(word); i++ {
+		freq[word[i]]--
+		if freq[word[i]] < 0 {
+			return false
+		}
+	}
+	var dfs func(i, j, k int) bool
+	// 二维数组要次次make
+	used := make([][]bool, len(board))
+	for i := range used {
+		used[i] = make([]bool, len(board[0]))
+	}
+
+	// i,j位置的数值是否是word[k]
+	dfs = func(i, j, k int) bool {
+		// 1. 越界
+		if i < 0 || i >= len(board) || j < 0 || j >= len(board[0]) {
+			return false
+		}
+		// 2. 已访问
+		if used[i][j] {
+			return false
+		}
+		// 3. 字符不匹配
+		if board[i][j] != word[k] {
+			return false
+		}
+		// 4. 匹配到最后一个字符
+		if k == len(word)-1 {
+			return true
+		}
+		// 5. 标记访问
+		used[i][j] = true
+		// 6. 四方向搜索，只要一个成功就 true
+		if dfs(i+1, j, k+1) || dfs(i-1, j, k+1) ||
+			dfs(i, j+1, k+1) || dfs(i, j-1, k+1) {
+			return true
+		}
+		// 7. 回溯
+		used[i][j] = false
+		return false
+	}
+
+	for i := 0; i < len(board); i++ {
+		for j := 0; j < len(board[0]); j++ {
+			if dfs(i, j, 0) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// 分割回文串
+// 题目大意：给你一个字符串 s，请你将 s 分割成一些子串，使每个子串都是 回文串 。返回 s 所有可能的分割方案。
+// 输入：s = "aab"
+// 输出：[["a","a","b"],["aa","b"]]
+func partition(s string) (ans [][]string) {
+
+	var isPalindrome func(s string, left, right int) bool
+	isPalindrome = func(s string, left int, right int) bool {
+		for left < right {
+			if s[left] != s[right] {
+				return false
+			}
+			left++
+			right--
+		}
+		return true
+	}
+	path := []string{}
+	var dfs func(end int)
+	dfs = func(end int) {
+		if end == len(s) {
+			tm := make([]string, len(path))
+			copy(tm, path)
+			ans = append(ans, tm)
+		}
+		for i := end; i < len(s); i++ {
+			if isPalindrome(s, end, i) {
+				path = append(path, s[end:i+1])
+				dfs(i + 1)
+				path = path[:len(path)-1]
+			}
+		}
+	}
+	dfs(0)
 	return
 }
