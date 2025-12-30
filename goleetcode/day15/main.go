@@ -9,7 +9,8 @@ import (
 )
 
 func main() {
-	fmt.Print(subsets([]int{1, 2, 3, 4}))
+	fmt.Print(longestPalindrome("babad"))
+	fmt.Print(longestPalindrome("cbbd"))
 
 }
 
@@ -650,4 +651,83 @@ func partition(s string) (ans [][]string) {
 	}
 	dfs(0)
 	return
+}
+
+// 5. 最长回文子串
+func longestPalindrome(s string) string {
+	reslen := 0
+	resstart := 0
+	for i := 0; i < len(s); i++ {
+		l, r := i, i
+		for l >= 0 && r < len(s) && s[l] == s[r] {
+			if r-l+1 > reslen {
+				resstart = l
+				reslen = r - l + 1
+			}
+			l--
+			r++
+		}
+		l, r = i, i+1
+		for l >= 0 && r < len(s) && s[l] == s[r] {
+			if r-l+1 > reslen {
+				resstart = l
+				reslen = r - l + 1
+			}
+			l--
+			r++
+		}
+	}
+	return s[resstart : resstart+reslen]
+}
+
+// 840. 矩阵中的幻方
+func numMagicSquaresInside(grid [][]int) (ans int) {
+	if len(grid) < 3 || len(grid[0]) < 3 {
+		return 0
+	}
+
+	isvalid := func(i, j int) bool {
+		seen := make([]bool, 10)
+		for r := 0; r < 3; r++ {
+			for c := 0; c < 3; c++ {
+				v := grid[i+r][j+c]
+				if v < 1 || v > 9 || seen[v] {
+					return false
+				}
+				seen[v] = true
+			}
+		}
+		for v := 1; v <= 9; v++ {
+			if !seen[v] {
+				return false
+			}
+		}
+		target := grid[i][j] + grid[i][j+1] + grid[i][j+2]
+		for r := 0; r < 3; r++ {
+			if grid[i+r][j]+grid[i+r][j+1]+grid[i+r][j+2] != target {
+				return false
+			}
+		}
+		for c := 0; c < 3; c++ {
+			if grid[i][j+c]+grid[i+1][j+c]+grid[i+2][j+c] != target {
+				return false
+			}
+		}
+		if grid[i][j]+grid[i+1][j+1]+grid[i+2][j+2] != target {
+			return false
+		}
+		if grid[i][j+2]+grid[i+1][j+1]+grid[i+2][j] != target {
+			return false
+		}
+		return true
+	}
+
+	for i := 0; i <= len(grid)-3; i++ {
+		for j := 0; j <= len(grid[0])-3; j++ {
+			if isvalid(i, j) {
+				ans++
+			}
+		}
+	}
+	return ans
 }
