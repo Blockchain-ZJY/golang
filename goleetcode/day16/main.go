@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
+	"slices"
 )
 
 func main() {
-	// fmt.Println(decodeString("3[a2[cb]]"))
-	fmt.Println(dailyTemperatures([]int{73, 74, 75, 71, 69, 72, 76, 73}))
-	fmt.Println(dailyTemperatures([]int{30, 40, 50, 60}))
+	fmt.Println(generate(5))
 }
 
 func plusOne(digits []int) (ans []int) {
@@ -91,6 +90,67 @@ func dailyTemperatures(temperatures []int) []int {
 			stack.pop()
 		}
 		stack.push(i)
+	}
+	return ans
+}
+
+// 961. 在长度 2N 的数组中找出重复 N 次的元素
+func repeatedNTimes(nums []int) (ans int) {
+	m := make(map[int]struct{})
+	for i := 0; i < len(nums); i++ {
+		if _, ok := m[nums[i]]; ok {
+			ans = nums[i]
+			return
+		}
+		m[nums[i]] = struct{}{}
+	}
+	return
+}
+
+// 31. 下一个排列
+// [1,2,3]
+// [1,3,2]
+// [2,1,3]
+// [2,3,1]
+// [3,1,2]
+// [3,2,1]
+func nextPermutation(nums []int) {
+	// 1. 找到第一个下降的坐标i
+	// 2. 找到i之后的位置j(满足递增顺序) 交换
+	// 3. reverse i之后的部分
+	for i := len(nums) - 1; i >= 0; i-- {
+		if i != len(nums)-1 && nums[i] < nums[i+1] {
+			j := len(nums) - 1
+			for j > i && nums[j] <= nums[i] {
+				j--
+			}
+			fmt.Println()
+			nums[i], nums[j] = nums[j], nums[i]
+			slices.Reverse(nums[i+1:])
+			fmt.Println(nums)
+			return
+		} else if i == 0 {
+			slices.Reverse(nums)
+			return
+		}
+	}
+	fmt.Println(nums)
+}
+
+// 杨辉三角
+func generate(numRows int) (ans [][]int) {
+	for i := 0; i < numRows; i++ {
+		t := []int{}
+		for j := 0; j < i+1; j++ {
+			if j == 0 || j == i {
+				t = append(t, 1)
+			} else {
+				if i > 1 {
+					t = append(t, ans[i-1][j-1]+ans[i-1][j])
+				}
+			}
+		}
+		ans = append(ans, t)
 	}
 	return ans
 }
