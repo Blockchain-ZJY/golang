@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"slices"
+	"strconv"
 )
 
 type TreeNode struct {
@@ -199,4 +201,80 @@ func isValidBST(root *TreeNode) bool {
 		return helper(root.Right)
 	}
 	return helper(root)
+}
+
+// 236. 二叉树的最近公共祖先
+func lowestCommonAncestor(root, p, q *TreeNode) (ans *TreeNode) {
+	var hasnode func(node, p, q *TreeNode) int
+	// 从该节点往下是否包含p,q节点,找到最接近的
+	hasnode = func(node, p, q *TreeNode) (res int) {
+		if node == nil {
+			return 0
+		}
+		if node == q || node == p {
+			res++
+		}
+		res += hasnode(node.Left, p, q) + hasnode(node.Right, p, q)
+		if res == 2 && ans == nil {
+			ans = node
+		}
+		return
+	}
+	hasnode(root, p, q)
+	return ans
+}
+
+// 257. 二叉树的所有路径
+func binaryTreePaths(root *TreeNode) (ans []string) {
+	var dfs func(path string, node *TreeNode)
+	dfs = func(path string, node *TreeNode) {
+		if node == nil {
+			return
+		}
+		path = path + strconv.Itoa(root.Val)
+		if root.Left == nil && root.Right == nil {
+			ans = append(ans, path)
+			return
+		}
+		path += "->"
+		dfs(path, root.Left)
+		dfs(path, root.Right)
+	}
+	dfs("", root)
+	return
+}
+
+// 1161. 最大层内元素和
+func maxLevelSum(root *TreeNode) (ans int) {
+	if root == nil {
+		return
+	}
+	bigerone := -math.MaxInt64
+	q := []*TreeNode{}
+	q = append(q, root)
+	index := 0
+	for len(q) != 0 {
+		layer := []int{}
+		len := len(q)
+		index++
+		sum := 0
+		for i := 0; i < len; i++ {
+			head := q[0]
+			sum += head.Val
+			q = q[1:]
+			layer = append(layer, head.Val)
+			if head.Left != nil {
+				q = append(q, head.Left)
+			}
+			if head.Right != nil {
+				q = append(q, head.Right)
+			}
+		}
+		if bigerone < sum {
+			ans = index
+			bigerone = sum
+		}
+		fmt.Println(bigerone)
+	}
+	return
 }

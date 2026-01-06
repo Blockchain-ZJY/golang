@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"slices"
+	"sort"
 )
 
 func main() {
-	fmt.Println(generate(5))
+	fmt.Println(maxMatrixSum([][]int{{-1, 0, -1}, {-2, 1, 3}, {3, 2, 2}}))
 }
 
 func plusOne(digits []int) (ans []int) {
@@ -153,4 +155,231 @@ func generate(numRows int) (ans [][]int) {
 		ans = append(ans, t)
 	}
 	return ans
+}
+
+// 198. 打家劫舍
+func rob(nums []int) int {
+	var dfs func(i int) int
+	m := make(map[int]int)
+	dfs = func(i int) int {
+		if i < 0 {
+			return 0
+		}
+		if _, ok := m[i]; ok {
+			return m[i]
+		}
+		res := max(dfs(i-2)+nums[i], dfs(i-1))
+		m[i] = res
+		return res
+	}
+	return dfs(len(nums) - 1)
+}
+
+// 武林大会打擂台 O(1) 的空间复杂度实现 找到众数
+func majorityElement(nums []int) (ans int) {
+	hp := 0
+	for _, x := range nums {
+		if hp == 0 {
+			ans, hp = x, 1
+		} else if x == ans {
+			hp++
+		} else {
+			hp--
+		}
+	}
+	return
+}
+
+// 76. 最小覆盖子串
+func minWindow(s string, t string) string {
+	if len(t) == 0 || len(s) < len(t) {
+		return ""
+	}
+	target := [128]int{}
+	for i := 0; i < len(t); i++ {
+		target[t[i]]++
+	}
+	var ismatch func(a [128]int, target [128]int) bool
+	ismatch = func(a, target [128]int) bool {
+		for x, _ := range target {
+			if target[x] > a[x] {
+				return false
+			}
+		}
+		return true
+	}
+	ans := [128]int{}
+	for i := 0; i < len(t); i++ {
+		ans[s[i]]++
+	}
+	if ismatch(ans, target) {
+		return s[0:len(t)]
+	}
+	l, r := 0, len(t)
+	resl, resr := 0, len(s)
+	found := false
+	for r < len(s) {
+		ans[s[r]]++
+		for ismatch(ans, target) {
+			found = true
+			if r-l < resr-resl {
+				resl = l
+				resr = r
+			}
+			ans[s[l]]--
+			l++
+		}
+		r++
+	}
+	if !found {
+		return ""
+	}
+	return s[resl : resr+1]
+}
+
+// 46. 全排列
+func permute(nums []int) (ans [][]int) {
+	path := []int{}
+	vis := make([]bool, len(nums))
+	var dfs func(length int)
+	dfs = func(length int) {
+		if length == len(nums) {
+			t := []int{}
+			t = append(t, path...)
+			ans = append(ans, t)
+		}
+		for i := 0; i < len(nums); i++ {
+			if !vis[i] {
+				vis[i] = true
+				path = append(path, nums[i])
+				dfs(length + 1)
+				path = path[:len(path)-1]
+				vis[i] = false
+			}
+		}
+	}
+	dfs(0)
+	return
+}
+
+// 1390. 四因数
+func sumFourDivisors(nums []int) (ans int) {
+	for x := range nums {
+		t := 0
+		sum := 0
+		for j := 2; j <= int(math.Sqrt(float64(nums[x]))); j++ {
+			if nums[x]%j == 0 {
+				t = j
+				sum++
+			}
+		}
+		if sum == 1 && t != nums[x]/t {
+			ans += t + 1 + nums[x] + nums[x]/t
+		}
+	}
+	return
+}
+
+func largestEven(s string) string {
+	b := []byte(s)
+	for i := len(s) - 1; i >= 0; i-- {
+		if (b[i]-'0')%2 == 0 {
+			return s[:i+1]
+		}
+	}
+	return ""
+}
+
+// Q2. 单词方块 II
+func wordSquares(words []string) (ans [][]string) {
+
+	path := []string{}
+	vis := make([]bool, len(words)+1)
+
+	var dfs func()
+	dfs = func() {
+		if len(path) == 4 {
+			// 最后检查 bottom 的两个条件
+			if path[3][0] == path[1][3] && path[3][3] == path[2][3] {
+				ans = append(ans, append([]string{}, path...))
+			}
+			return
+		}
+
+		for i := 0; i < len(words); i++ {
+			if vis[i] {
+				continue
+			}
+			// 剪枝：根据当前 path 长度直接比较
+			if len(path) == 1 { // left 必须首字母等于 top[0]
+				if words[i][0] != path[0][0] {
+					continue
+				}
+			}
+			if len(path) == 2 { // right 必须首字母等于 top[3]
+				if words[i][0] != path[0][3] {
+					continue
+				}
+			}
+			if len(path) == 3 { // bottom 必须首字母等于 left[3]，末字母等于 right[3]
+				if words[i][0] != path[1][3] || words[i][3] != path[2][3] {
+					continue
+				}
+			}
+
+			vis[i] = true
+			path = append(path, words[i])
+			dfs()
+			path = path[:len(path)-1]
+			vis[i] = false
+		}
+	}
+
+	dfs()
+	sort.Slice(ans, func(i, j int) bool {
+		for k := 0; k < 4; k++ {
+			if ans[i][k] != ans[j][k] {
+				return ans[i][k] < ans[j][k]
+			}
+		}
+		return false
+	})
+	return
+}
+
+// 1975. 最大方阵和
+func maxMatrixSum(matrix [][]int) int64 {
+	ans, count, min := 0, 0, math.MaxInt64
+	for i := 0; i < len(matrix); i++ {
+		for j := 0; j < len(matrix[0]); j++ {
+			if matrix[i][j] < 0 {
+				count++
+				ans -= matrix[i][j]
+			} else {
+				ans += matrix[i][j]
+			}
+			if math.Abs(float64(matrix[i][j])) < math.Abs(float64(min)) {
+				min = matrix[i][j]
+			}
+		}
+	}
+	if count%2 == 0 {
+		return int64(ans)
+	} else {
+		return int64(ans - 2*int(math.Abs(float64(min))))
+	}
+}
+
+func removeDuplicates(nums []int) int {
+	if len(nums) <= 2 {
+		return len(nums)
+	}
+	k := 2
+	for i := 2; i < len(nums); i++ {
+		if nums[i] != nums[k-2] {
+			nums[k] = nums[i]
+			k++
+		}
+	}
+	return k
 }

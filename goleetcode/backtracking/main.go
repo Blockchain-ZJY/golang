@@ -122,19 +122,7 @@ func Stackmatch(s string) bool {
 }
 
 func main() {
-	// board := [][]byte{
-	// 	{'5', '3', '.', '.', '7', '.', '.', '.', '.'},
-	// 	{'6', '.', '.', '1', '9', '5', '.', '.', '.'},
-	// 	{'.', '9', '8', '.', '.', '.', '.', '6', '.'},
-	// 	{'8', '.', '.', '.', '6', '.', '.', '.', '3'},
-	// 	{'4', '.', '.', '8', '.', '3', '.', '.', '1'},
-	// 	{'7', '.', '.', '.', '2', '.', '.', '.', '6'},
-	// 	{'.', '6', '.', '.', '.', '.', '2', '8', '.'},
-	// 	{'.', '.', '.', '4', '1', '9', '.', '.', '5'},
-	// 	{'.', '.', '.', '.', '8', '.', '.', '7', '9'},
-	// }
-	fmt.Println(pyramidTransition("AAAA", []string{"AAB", "AAC", "BCD", "BBE", "DEF"}))
-	// solveSudoku(board)
+	fmt.Println(solveNQueens(4))
 }
 
 type CharStack struct {
@@ -565,20 +553,58 @@ func partition(s string) (ans [][]string) {
 	return
 }
 
-// 756. 金字塔转换矩阵
-func pyramidTransition(bottom string, allowed []string) bool {
-	n := len(bottom)
-	m := make(map[[2]byte][]byte)
-	for i := range allowed {
-		t := [2]byte{allowed[i][0], allowed[i][1]}
-		m[t] = append(m[t], []byte(allowed[i][2]))
+// 51. N 皇后
+func solveNQueens(n int) (ans [][]string) {
+	board := make([][]byte, n)
+	for i := 0; i < n; i++ {
+		board[i] = make([]byte, n)
+		for j := 0; j < n; j++ {
+			board[i][j] = '.' // 初始化为空位
+		}
 	}
-	board := make([]string, len(bottom))
-	board[0] = bottom
-
-	var dfs func(i, j int) bool
-	dfs = func(i, j int) bool {
-
+	var isok func(board [][]byte, x, y int) bool
+	isok = func(board [][]byte, x, y int) bool {
+		// 检查行和列
+		for i := 0; i < n; i++ {
+			if board[i][x] == 'Q' || board[y][i] == 'Q' {
+				return false
+			}
+		}
+		// 检查斜对角
+		for i := 0; i < n; i++ {
+			for j := 0; j < n; j++ {
+				if board[i][j] == 'Q' {
+					// 主对角线: 行-列相等
+					if i-j == y-x {
+						return false
+					}
+					// 副对角线: 行+列相等
+					if i+j == y+x {
+						return false
+					}
+				}
+			}
+		}
+		return true
 	}
-	return false
+	var dfs func(board [][]byte, y int)
+	dfs = func(board [][]byte, y int) {
+		if y == n {
+			t := make([]string, n)
+			for i := 0; i < n; i++ {
+				t[i] = string(board[i])
+			}
+			ans = append(ans, t)
+			return
+		}
+		for i := 0; i < n; i++ {
+			if isok(board, i, y) {
+				board[y][i] = 'Q'
+				dfs(board, y+1)
+				board[y][i] = '.' // 回溯
+			}
+		}
+	}
+	dfs(board, 0)
+	return
 }
