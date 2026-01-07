@@ -124,21 +124,21 @@ func setZeroes(matrix [][]int) {
 					if matrix[x][i] == 0 {
 						continue
 					}
-					matrix[x][i] = math.MaxInt64
+					matrix[x][i] = math.MaxInt
 				}
 				for i := 0; i < len(matrix); i++ {
 					if matrix[i][k] == 0 {
 						continue
 					}
 					fmt.Println(i, x)
-					matrix[i][k] = math.MaxInt64
+					matrix[i][k] = math.MaxInt
 				}
 			}
 		}
 	}
 	for x := range matrix {
 		for y := range matrix[x] {
-			if matrix[x][y] == math.MaxInt64 {
+			if matrix[x][y] == math.MaxInt {
 				matrix[x][y] = 0
 			}
 		}

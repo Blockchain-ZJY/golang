@@ -349,7 +349,7 @@ func wordSquares(words []string) (ans [][]string) {
 
 // 1975. 最大方阵和
 func maxMatrixSum(matrix [][]int) int64 {
-	ans, count, min := 0, 0, math.MaxInt64
+	ans, count, min := 0, 0, math.MaxInt
 	for i := 0; i < len(matrix); i++ {
 		for j := 0; j < len(matrix[0]); j++ {
 			if matrix[i][j] < 0 {

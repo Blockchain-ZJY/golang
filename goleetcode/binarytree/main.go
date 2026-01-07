@@ -249,7 +249,7 @@ func maxLevelSum(root *TreeNode) (ans int) {
 	if root == nil {
 		return
 	}
-	bigerone := -math.MaxInt64
+	bigerone := -math.MaxInt
 	q := []*TreeNode{}
 	q = append(q, root)
 	index := 0
@@ -277,4 +277,137 @@ func maxLevelSum(root *TreeNode) (ans int) {
 		fmt.Println(bigerone)
 	}
 	return
+}
+
+// 199. 二叉树的右视图
+func rightSideView(root *TreeNode) (ans []int) {
+	if root == nil {
+		return nil
+	}
+	//层次遍历收集最后一个结果
+	q := []*TreeNode{}
+	q = append(q, root)
+	for len(q) != 0 {
+		l := len(q)
+		for i := 0; i < l; i++ {
+			t := q[0]
+			if i == l-1 {
+				ans = append(ans, t.Val)
+			}
+			q = q[1:] // 出队
+			if t.Left != nil {
+				q = append(q, t.Left)
+			}
+			if t.Right != nil {
+				q = append(q, t.Right)
+			}
+		}
+	}
+	return
+}
+
+// 114. 二叉树展开为链表 先序遍历相同,先序遍历记录pre,每次
+func flatten(root *TreeNode) {
+	pre := &TreeNode{}
+	var helpfunc func(root *TreeNode)
+	helpfunc = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+		if pre != nil {
+			pre.Right = root
+			pre.Left = nil
+		}
+		right := root.Right
+		pre = root
+		helpfunc(root.Left)
+		helpfunc(right)
+	}
+	helpfunc(root)
+}
+
+// 105. 从前序与中序遍历序列构造二叉树
+func buildTree(preorder []int, inorder []int) *TreeNode {
+	if len(inorder) == 0 {
+		return nil
+	}
+
+	root := &TreeNode{
+		Val: preorder[0],
+	}
+	if len(inorder) == 1 {
+		return root
+	}
+	// 找到中序左边的数组
+	index := 0
+	for i := 0; i < len(inorder); i++ {
+		if inorder[i] == preorder[0] {
+			index = i
+			break
+		}
+	}
+	inorderleft := inorder[:index]
+	inorderright := inorder[index+1:] // ⭐ 修复这里
+	preorderleft := preorder[1 : 1+index]
+	preorderright := preorder[1+index:]
+	root.Left = buildTree(preorderleft, inorderleft)
+	root.Right = buildTree(preorderright, inorderright)
+	return root
+}
+
+// 路径总和
+func hasPathSum(root *TreeNode, targetSum int) bool {
+	if root == nil {
+		return false
+	}
+	if root.Left == nil && root.Right == nil {
+		return (targetSum-root.Val == 0)
+	}
+	return hasPathSum(root.Left, targetSum-root.Val) || hasPathSum(root.Right, targetSum-root.Val)
+}
+
+// 路径总和
+func pathSum(root *TreeNode, targetSum int) (ans [][]int) {
+	var path []int
+
+	var dfs func(*TreeNode, int)
+	dfs = func(node *TreeNode, sum int) {
+		if node == nil {
+			return
+		}
+		path = append(path, node.Val)
+		sum += node.Val
+		if node.Left == nil && node.Right == nil && sum == targetSum {
+			tmp := make([]int, len(path))
+			copy(tmp, path)
+			ans = append(ans, tmp)
+		}
+		dfs(node.Left, sum)
+		dfs(node.Right, sum)
+
+		path = path[:len(path)-1] // 回溯
+	}
+
+	dfs(root, 0)
+	return ans
+}
+
+// 437. 路径总和 III
+func pathSum1(root *TreeNode, targetSum int) int {
+	if root == nil {
+		return 0
+	}
+	//函数定义 由node节点开头,后续链路和为targetSum的数量
+	var dfs func(node *TreeNode, sum int) int
+	dfs = func(node *TreeNode, sum int) (ct int) {
+		if node == nil {
+			return 0
+		}
+		if sum-node.Val == 0 {
+			ct++
+		}
+		ct += dfs(node.Left, sum-node.Val) + dfs(node.Right, sum-node.Val)
+		return
+	}
+	return dfs(root, targetSum) + pathSum1(root.Left, targetSum) + pathSum1(root.Right, targetSum)
 }
