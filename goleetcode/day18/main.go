@@ -8,8 +8,186 @@ import (
 )
 
 func main() {
-	fmt.Println(maxSubArray([]int{-2, 1, -3, 4, -1, 2, 1, -5, 4}))
+	fmt.Println(generate(5))
 }
+
+// 198. 打家劫舍
+func rob(nums []int) int {
+	dp := make([]int, len(nums)+1)
+	if len(nums) == 1 {
+		return nums[0]
+	} else if len(nums) == 2 {
+		return max(nums[0], nums[1])
+	} else {
+		dp[0], dp[1] = nums[0], max(nums[0], nums[1])
+		for i := 3; i <= len(nums); i++ {
+			dp[i] = max(dp[i-2]+nums[i], dp[i-1])
+		}
+	}
+	return dp[len(nums)]
+}
+
+// 杨辉三角
+func generate(numRows int) [][]int {
+	dp := make([][]int, numRows)
+	for i := 0; i < numRows; i++ {
+		dp[i] = make([]int, i+1)
+	}
+	fmt.Println(dp)
+	for i := 0; i < numRows; i++ {
+		dp[i][0] = 1
+		for j := 1; j < i; j++ {
+			dp[i][j] = dp[i-1][j] + dp[i-1][j-1]
+			fmt.Println(dp[i][j])
+		}
+		dp[i][i] = 1
+	}
+	return dp
+}
+
+// 287. 寻找重复数
+func findDuplicate(nums []int) int {
+	slow, fast := 0, 0
+	for {
+		slow = nums[slow]
+		fast = nums[nums[fast]]
+		if fast == slow {
+			break
+		}
+	}
+	head := 0
+	for slow != head {
+		slow = nums[slow]
+		head = nums[head]
+	}
+	return slow
+}
+
+// 75. 颜色分类
+// 把1 2 看成一个东西
+// 在从后面分
+func sortColors(nums []int) {
+	n := len(nums)
+	j := 0 // 当前需要交换的地方
+	for i := 0; i < n; i++ {
+		if nums[i] == 0 {
+			nums[i], nums[j] = nums[j], nums[i]
+			j++
+		}
+	}
+	for i := j; i < n; i++ {
+		if nums[i] == 1 {
+			nums[i], nums[j] = nums[j], nums[i]
+			j++
+		}
+	}
+}
+func canFinish(numCourses int, prerequisites [][]int) bool {
+	g := make([][]int, numCourses)
+	for _, p := range prerequisites {
+		g[p[1]] = append(g[p[1]], p[0])
+	}
+
+	colors := make([]int, numCourses)
+	// 返回 true 表示找到了环
+	var dfs func(int) bool
+	dfs = func(x int) bool {
+		colors[x] = 1 // x 正在访问中
+		for _, y := range g[x] {
+			// 情况一：colors[y] == 1，表示发生循环依赖，找到了环
+			// 情况二：colors[y] == 0，未知，继续递归 y 获取信息
+			// 情况三：colors[y] == 2，继续递归 y 只会重蹈覆辙，和之前一样无法找到环
+			if colors[y] == 1 || colors[y] == 0 && dfs(y) {
+				return true // 找到了环
+			}
+		}
+		colors[x] = 2 // x 完全访问完毕，从 x 出发无法找到环
+		return false  // 没有找到环
+	}
+
+	for i, c := range colors {
+		if c == 0 && dfs(i) {
+			return false // 有环
+		}
+	}
+	return true // 没有环
+}
+
+type Node struct {
+	Val, Key  int
+	Next, Pre *Node
+}
+type LRUCache struct {
+	size      int
+	dummy     *Node
+	KeytoNode map[int]*Node
+}
+
+func Constructor(capacity int) LRUCache {
+	dummy := &Node{}
+	dummy.Next = dummy
+	dummy.Pre = dummy
+	m := make(map[int]*Node)
+	return LRUCache{
+		size:      capacity,
+		KeytoNode: m,
+		dummy:     dummy,
+	}
+}
+
+func (l *LRUCache) Remove(x *Node) {
+	x.Pre.Next = x.Next
+	x.Next.Pre = x.Pre
+}
+
+// 在链表头加上一个节点x
+func (l *LRUCache) PushFront(x *Node) {
+	x.Pre = l.dummy
+	x.Next = l.dummy.Next
+	x.Pre.Next = x
+	x.Next.Pre = x
+}
+
+func (l *LRUCache) Get(key int) int {
+	node := l.KeytoNode[key]
+	// 不存在该值
+	if node == nil {
+		return -1
+	}
+	l.Remove(node)
+	l.PushFront(node)
+	return node.Val
+}
+
+func (l *LRUCache) Put(key int, value int) {
+	node := l.KeytoNode[key]
+	if node != nil {
+		node.Val = value
+		l.Remove(node)
+		l.PushFront(node)
+		return
+	}
+	// 当前节点为空
+	newnode := &Node{
+		Val: value,
+		Key: key,
+	}
+
+	l.PushFront(newnode)
+	l.KeytoNode[key] = newnode
+	if l.size < len(l.KeytoNode) {
+		backnode := l.dummy.Pre
+		delete(l.KeytoNode, backnode.Key)
+		l.Remove(l.dummy.Pre)
+	}
+}
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * obj := Constructor(capacity);
+ * param_1 := obj.Get(key);
+ * obj.Put(key,value);
+ */
 
 // 53. 最大子数组和
 // dp[i] 表示以i结尾的最大连续子数组和
@@ -36,6 +214,7 @@ func maxProduct(nums []int) int {
 		preMax = max(nums[i], max(a, b))
 		preMin = min(nums[i], min(a, b))
 		ans = max(preMax, ans)
+
 	}
 	return ans
 }
@@ -63,23 +242,6 @@ func numSquaresTest(n int) int {
 	}
 	fmt.Println(dp)
 	return dp[n]
-}
-
-// 198. 打家劫舍
-// dp[i] 表示到i所拿到最大的金额
-func rob(nums []int) int {
-	dp := make([]int, len(nums)+1)
-	for i := 0; i < len(nums); i++ {
-		if i == 0 {
-			dp[i] = nums[0]
-		} else if i == 1 {
-			dp[i] = max(nums[1], nums[0])
-		} else {
-			dp[i] = max(dp[i-1], dp[i-2]+nums[i])
-		}
-	}
-	fmt.Println(dp)
-	return dp[len(nums)-1]
 }
 
 // 139. 单词拆分
@@ -378,17 +540,17 @@ type MedianFinder struct {
 	b   *bigh
 }
 
-func Constructor() MedianFinder {
-	smheap := &smh{}
-	bigh := &bigh{}
-	heap.Init(smheap)
-	heap.Init(bigh)
-	return MedianFinder{
-		sum: 0,
-		s:   smheap,
-		b:   bigh, // 大根堆放左半边小数
-	}
-}
+// func Constructor() MedianFinder {
+// 	smheap := &smh{}
+// 	bigh := &bigh{}
+// 	heap.Init(smheap)
+// 	heap.Init(bigh)
+// 	return MedianFinder{
+// 		sum: 0,
+// 		s:   smheap,
+// 		b:   bigh, // 大根堆放左半边小数
+// 	}
+// }
 
 func (this *MedianFinder) AddNum(num int) {
 	this.sum++

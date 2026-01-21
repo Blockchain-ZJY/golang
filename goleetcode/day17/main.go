@@ -1,13 +1,70 @@
 package main
 
 import (
+	"container/heap"
 	"fmt"
 	"math"
+	"sort"
 )
 
 func main() {
+	fmt.Println(topKFrequent([]int{1, 1, 1, 2, 2, 3}, 2))
+	fmt.Println(topKFrequent([]int{1, 2, 1, 2, 1, 2, 3, 1, 3, 2}, 2))
+}
 
-	fmt.Println(totalNQueens(4))
+type pair struct {
+	num  int
+	freq int
+}
+type hp []pair
+
+// Len implements heap.Interface.
+func (h *hp) Len() int {
+	return len(*h)
+}
+
+// Less implements heap.Interface.
+func (h *hp) Less(i int, j int) bool {
+	return (*h)[i].freq < (*h)[j].freq
+}
+
+// Pop implements heap.Interface.
+func (h *hp) Pop() any {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[:n-1]
+	return x
+}
+
+// Push implements heap.Interface.
+func (h *hp) Push(x any) {
+	*h = append(*h, x.(pair))
+}
+
+// Swap implements heap.Interface.
+func (h *hp) Swap(i int, j int) {
+	(*h)[j], (*h)[i] = (*h)[i], (*h)[j]
+}
+
+// 347. 前 K 个高频元素
+func topKFrequentHeap(nums []int, k int) (ans []int) {
+	h := &hp{}
+	heap.Init(h)
+	freq := make(map[int]int)
+	for _, num := range nums {
+		freq[num]++
+	}
+	for nums, v := range freq {
+		heap.Push(h, pair{num: nums, freq: v})
+		if h.Len() > k {
+			heap.Pop(h)
+		}
+	}
+	for i := 0; i < k; i++ {
+		ans = append(ans, heap.Pop(h).(pair).num)
+	}
+	return
 }
 
 type TreeNode struct {
@@ -466,5 +523,33 @@ func totalNQueens(n int) (ans int) {
 	}
 
 	dfs(board, 0)
+	return
+}
+
+type KV struct {
+	Key int
+	Val int
+}
+
+// 347. 前 K 个高频元素
+func topKFrequent(nums []int, k int) (ans []int) {
+	sort.Ints(nums)
+	freq := make(map[int]int)
+	for i := 0; i < len(nums); i++ {
+		freq[nums[i]]++
+	}
+	arr := make([]KV, 0, len(freq))
+	for k, v := range freq {
+		arr = append(arr, KV{
+			Key: k,
+			Val: v,
+		})
+	}
+	sort.Slice(arr, func(i, j int) bool {
+		return arr[i].Val > arr[j].Val
+	})
+	for i := 0; i < k; i++ {
+		ans = append(ans, arr[i].Key)
+	}
 	return
 }
