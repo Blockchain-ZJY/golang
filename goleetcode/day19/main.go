@@ -10,6 +10,75 @@ func main() {
 	fmt.Println(topKFrequent([]int{1, 2, 1, 2, 3, 3, 3, 3, 2, 3, 1, 3, 2}, 2))
 }
 
+type Node struct {
+	Val, Key  int
+	Pre, Next *Node
+}
+
+type LRUCache struct {
+	Cap       int
+	Size      int
+	Dummy     *Node
+	KeytoNode map[int]*Node
+}
+
+func Constructor(capacity int) LRUCache {
+	d := &Node{}
+	d.Pre = d
+	d.Next = d
+	ktn := make(map[int]*Node)
+	return LRUCache{
+		Cap:       capacity,
+		Size:      0,
+		Dummy:     d,
+		KeytoNode: ktn,
+	}
+}
+
+func (l *LRUCache) Rm(x *Node) {
+	x.Pre.Next = x.Next
+	x.Next.Pre = x.Pre
+}
+func (l *LRUCache) PushFont(x *Node) {
+	x.Pre = l.Dummy
+	x.Next = l.Dummy.Next
+	x.Pre.Next = x
+	x.Next.Pre = x
+}
+
+func (l *LRUCache) Get(key int) (ans int) {
+	node := l.KeytoNode[key]
+	if node == nil {
+		return -1
+	}
+	ans = node.Val
+	l.Rm(node)
+	l.PushFont(node)
+	return
+}
+
+func (l *LRUCache) Put(key int, value int) {
+	if node, ok := l.KeytoNode[key]; ok {
+		node.Val = value
+		l.Rm(node)
+		l.PushFont(node)
+		return
+	}
+	newnode := &Node{
+		Val: value,
+		Key: key,
+	}
+	l.KeytoNode[key] = newnode
+	l.PushFont(newnode)
+	l.Size++
+	if l.Size > l.Cap {
+		tail := l.Dummy.Pre
+		l.Rm(tail)
+		delete(l.KeytoNode, tail.Key)
+	}
+
+}
+
 type KV struct {
 	key   int
 	value int
@@ -60,7 +129,6 @@ func topKFrequentHeap(nums []int, k int) (ans []int) {
 	for h.Len() > 0 {
 		ans = append(ans, heap.Pop(h).(KV).key)
 	}
-
 	return
 }
 

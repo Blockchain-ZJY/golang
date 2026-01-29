@@ -11,6 +11,31 @@ func main() {
 	fmt.Println(generate(5))
 }
 
+// 61. 旋转链表
+func rotateRight(head *ListNode, k int) (newhead *ListNode) {
+	n := 1
+	cur := head
+	for cur != nil {
+		n++
+		if cur.Next == nil {
+			cur.Next = head
+			break
+		}
+		cur = cur.Next
+	}
+	fmt.Println(n)
+	k = k % n
+	for i := 0; i < n-k; i++ {
+		if i == n-k-1 {
+			newhead = head.Next
+			head.Next = nil
+			break
+		}
+		head = head.Next
+	}
+	return
+}
+
 // 198. 打家劫舍
 func rob(nums []int) int {
 	dp := make([]int, len(nums)+1)
