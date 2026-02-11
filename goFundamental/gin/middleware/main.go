@@ -42,5 +42,5 @@ func main() {
 	r.Use(MyMiddleware)
 	r.GET("/ping", ping)
 	r.POST("/ping1", ping)
-	r.Run()
+	r.Run(":9000")
 }
