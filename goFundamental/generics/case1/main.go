@@ -1,11 +1,37 @@
 package main
 
-import "fmt"
+type TestAPI interface {
+	Method1() error
+	Method2() error
+}
+
+// 具体类型Tester1
+type Tester1 struct{}
+
+func (t *Tester1) Method1() error { return nil }
+func (t *Tester1) Method2() error { return nil }
+
+// 具体类型Tester2
+type Tester2 struct{}
+
+func (t *Tester2) Method1() error { return nil }
+func (t *Tester2) Method2() error { return nil }
+func (t *Tester2) Method3() error { return nil }
 
 // Number 定义了一个约束，它是一个包含所有整数和浮点数类型的接口。
 // 任何实现了这些类型之一的类型都满足这个约束。
 type Number interface {
 	int | int64 | float32 | float64
+}
+
+func Sort[T Number](a []T) {
+	for i := 0; i < len(a); i++ {
+		for j := i + 1; j < len(a); j++ {
+			if a[i] > a[j] {
+				a[i], a[j] = a[j], a[i]
+			}
+		}
+	}
 }
 
 // SumNumbers 是一个泛型函数。
@@ -21,20 +47,15 @@ func SumNumbers[T Number](numbers []T) (ans T) {
 }
 
 func main() {
-	// --- 使用泛型函数处理不同类型的切片 ---
-
-	// 1. 用于 int 切片
-	intSlice := []int{1, 2, 3, 4, 5}
-	sumOfInts := SumNumbers(intSlice) // Go 编译器会自动推断 T 的类型是 int
-	fmt.Printf("Generic sum of ints: %d (Type: %T)\n", sumOfInts, sumOfInts)
-
-	// 2. 用于 float64 切片
-	float64Slice := []float64{1.1, 2.2, 3.3, 4.4}
-	sumOfFloat64s := SumNumbers(float64Slice) // 编译器推断 T 的类型是 float64
-	fmt.Printf("Generic sum of floats: %f (Type: %T)\n", sumOfFloat64s, sumOfFloat64s)
-
-	// 3. 用于 int64 切片
-	int64Slice := []int64{100, 200, 300}
-	sumOfInt64s := SumNumbers(int64Slice) // 编译器推断 T 的类型是 int64
-	fmt.Printf("Generic sum of int64s: %d (Type: %T)\n", sumOfInt64s, sumOfInt64s)
+	var t1 Tester1
+	var t2 Tester2
+	// 定义接口变量
+	var api1, api2, api3 TestAPI
+	api1 = &t1
+	api2 = &t2
+	api3 = &t2
+	// 方法调用
+	api1.Method1()
+	api2.Method1()
+	api3.Method2()
 }

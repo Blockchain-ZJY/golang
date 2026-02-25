@@ -76,6 +76,6 @@ func (t *TCPTransport) handleConn(conn net.Conn) {
 		// 	fmt.Printf("TCP error %s\n", err)
 		// 	continue
 		// }
-		fmt.Printf("Message : %+v\n", buf[:n])
+		fmt.Printf("Message : %s\n", buf[:n])
 	}
 }

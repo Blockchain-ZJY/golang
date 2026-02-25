@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"cmp"
 	"fmt"
+	"math/bits"
 	"slices"
 	"sort"
 )
@@ -14,13 +16,49 @@ func main() {
 	fmt.Println(string(a), len(a), cap(a), "len(a) cap(a)")
 	fmt.Println(string(b), len(b), cap(b), "len(b) cap(b)")
 	index := bytes.IndexByte(a, '/')
-
+	fmt.Println(string(b), "string(b)")
 	c := a[index+1:]
 	b = append(b, "CCCCCCC"...)
 	fmt.Println(len(b), cap(b), "len(b)")
-	fmt.Println(string(a))
-	fmt.Println(string(b))
+
 	fmt.Println(string(c))
+}
+
+func groupAnagrams(strs []string) (ans [][]string) {
+	m := make(map[[26]int][]string)
+	for i := range strs {
+		tep := [26]int{}
+		for j := 0; j < len(strs[i]); j++ {
+			tep[strs[i][j]-'a']++
+		}
+		m[tep] = append(m[tep], strs[i])
+	}
+	for _, v := range m {
+		ans = append(ans, v)
+	}
+	return
+}
+
+func twoSum(nums []int, target int) (ans []int) {
+	m := make(map[int]int)
+	m[nums[0]] = 0
+	for i := 1; i < len(nums); i++ {
+		index, ok := m[target-nums[i]]
+		if ok {
+			ans = append(ans, i, index)
+			return
+		}
+		m[nums[i]] = i
+	}
+	return
+}
+
+// 1356. 根据数字二进制下 1 的数目排序
+func sortByBits(arr []int) []int {
+	slices.SortFunc(arr, func(a, b int) int {
+		return cmp.Or(bits.OnesCount(uint(a))-bits.OnesCount(uint(b)), a-b)
+	})
+	return arr
 }
 
 // 3634. 使数组平衡的最少移除数目

@@ -17,13 +17,12 @@ func main() {
 	wait.Add(1)
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
-
 		ip, err := GetIp(ctx)
 		fmt.Println(ip, err)
 	}()
 	wait.Add(1)
 	go func() {
-		time.Sleep(2 * time.Second)
+		time.Sleep(4 * time.Second)
 		cancel()
 		wait.Done()
 	}()
@@ -34,19 +33,19 @@ func main() {
 
 func GetIp(ctx context.Context) (ip string, err error) {
 	fmt.Println("开始获取ip")
-	go func() {
+
+	for {
 		select {
 		case <-ctx.Done():
 			fmt.Println("提前取消", ctx.Err().Error())
 			err = ctx.Err()
 			wait.Done()
 			return
+		case <-time.After(time.Second * 3):
+			fmt.Println("获取ip完成")
+			ip = "192.168.200.1"
+			wait.Done()
+			return
 		}
-	}()
-
-	time.Sleep(3 * time.Second)
-	fmt.Println("获取ip完成")
-	ip = "192.168.200.1"
-	wait.Done()
-	return
+	}
 }

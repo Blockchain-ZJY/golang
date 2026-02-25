@@ -12,5 +12,5 @@ type Decoder interface {
 type GOBDecider struct{}
 
 func (dec GOBDecider) Decode(r io.Reader, v any) error {
-	return gob.NewDecoder(r).Decode(r)
+	return gob.NewDecoder(r).Decode(v)
 }
