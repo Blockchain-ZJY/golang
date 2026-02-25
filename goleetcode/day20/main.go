@@ -1,25 +1,44 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"slices"
 	"sort"
 )
 
 func main() {
-	// a := []byte("AAAA/BBBBB")
-	// fmt.Println(cap(a), len(a))
-	// index := bytes.IndexByte(a, '/')
-	// b := a[:index]
-	// fmt.Println(len(b), "len(b)")
-	// c := a[index+1:]
-	// b = append(b, "CCCCCCC"...)
-	// fmt.Println(len(b), "len(b)")
-	// fmt.Println(string(a))
-	// fmt.Println(string(b))
-	// fmt.Println(string(c))
 
-	fmt.Println(threeSum([]int{1, 2, 0, 1, 0, 0, 0, 0}))
+	a := []byte("AAAA/BBBBB")
+	b := append(a, 'C')
+	fmt.Println(string(a), len(a), cap(a), "len(a) cap(a)")
+	fmt.Println(string(b), len(b), cap(b), "len(b) cap(b)")
+	index := bytes.IndexByte(a, '/')
+
+	c := a[index+1:]
+	b = append(b, "CCCCCCC"...)
+	fmt.Println(len(b), cap(b), "len(b)")
+	fmt.Println(string(a))
+	fmt.Println(string(b))
+	fmt.Println(string(c))
+}
+
+// 3634. 使数组平衡的最少移除数目
+func minRemoval(nums []int, k int) (ans int) {
+	maxlen := 1
+	sort.Ints(nums)
+	l, r := 0, 1
+	for r < len(nums) {
+		// 找到最长的平衡子数组
+		if nums[l]*k >= nums[r] {
+			r++
+			maxlen = max(maxlen, r-l)
+		} else {
+			l++
+		}
+	}
+	ans = len(nums) - maxlen
+	return
 }
 
 // 15. 三数之和
