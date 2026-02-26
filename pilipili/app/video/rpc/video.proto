@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package video;
+// goctl 生成代码时的包名设置
+option go_package = "./video";
+
+// =======================
+// 数据实体定义 (Entities)
+// =======================
+
+// 视频基本信息 (高度还原 B 站的 aid/bvid 概念，这里为简化统一用 id)
+message VideoInfo {
+    int64 id = 1;              // 视频ID (AV号)
+    int64 author_id = 2;       // UP主ID
+    string title = 3;          // 视频标题
+    string cover_url = 4;      // 封面图地址
+    int32 category_id = 5;     // 分区ID (如: 动画, 游戏)
+    string summary = 6;        // 视频简介
+    int64 publish_time = 7;    // 发布时间戳
+    int32 status = 8;          // 状态: 0:审核中, 1:正常, 2:下架
+    int32 duration = 9;        // 视频时长(秒)
+}
+
+// 视频的统计数据 (实时变动)
+message VideoStat {
+    int64 view_count = 1;      // 播放量
+    int64 danmaku_count = 2;   // 弹幕数
+    int64 reply_count = 3;     // 评论数
+    int64 like_count = 4;      // 点赞数
+    int64 coin_count = 5;      // 投币数
+    int64 favorite_count = 6;  // 收藏数
+    int64 share_count = 7;     // 分享数
+}
+
+// 播放流媒体信息
+message PlayStream {
+    string quality = 1;        // 画质 (如: "1080P", "720P")
+    string url = 2;            // 实际的 CDN 播放地址
+    string format = 3;         // 格式 (如: "mp4", "flv")
+}
+
+// =======================
+// 请求与响应定义 (Req/Resp)
+// =======================
+
+// 投稿请求
+message PublishReq {
+    int64 author_id = 1;
+    string title = 2;
+    string cover_url = 3;
+    string video_url = 4;      // 原始上传地址，后续会触发转码
+    int32 category_id = 5;
+    string summary = 6;
+}
+message PublishResp {
+    int64 video_id = 1;
+}
+
+// 获取视频详情请求 (包含统计数据)
+message GetVideoDetailReq {
+    int64 video_id = 1;
+}
+message GetVideoDetailResp {
+    VideoInfo info = 1;
+    VideoStat stat = 2;
+}
+
+// 批量获取视频信息 (非常重要：用于首页列表、UP主空间)
+message BatchGetVideoReq {
+    repeated int64 video_ids = 1;
+}
+message BatchGetVideoResp {
+    // key 是 video_id，value 是视频信息
+    map<int64, VideoInfo> videos = 1; 
+}
+
+// 获取播放地址请求 (通常需要鉴权，比如非大会员不给 1080p)
+message GetPlayUrlReq {
+    int64 video_id = 1;
+    int64 user_id = 2;         // 谁在请求播放？(用于鉴权)
+    string quality_limit = 3;  // 期望的最高画质
+}
+message GetPlayUrlResp {
+    repeated PlayStream streams = 1; // 返回可用的播放流列表
+}
+
+// =======================
+// 视频服务定义 (Service)
+// =======================
+
+service Video {
+    // 1. 核心写操作
+    rpc PublishVideo(PublishReq) returns(PublishResp);
+    
+    // 2. 核心读操作
+    rpc GetVideoDetail(GetVideoDetailReq) returns(GetVideoDetailResp);
+    
+    // 3. 高并发批量读操作 (供推荐系统、API网关调用)
+    rpc BatchGetVideo(BatchGetVideoReq) returns(BatchGetVideoResp);
+    
+    // 4. 获取实际播放流 (通常前端拿到视频详情后，再单独请求播放地址)
+    rpc GetPlayUrl(GetPlayUrlReq) returns(GetPlayUrlResp);
+}

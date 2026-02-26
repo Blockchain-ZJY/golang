@@ -1,0 +1,129 @@
+syntax = "v1"
+
+info (
+	title:  "视频服务 API"
+	desc:   "高仿 B 站视频核心业务"
+	author: "pilipili"
+)
+
+// =======================
+// 1. 公共结构体定义
+// =======================
+// UP 主信息
+type Author {
+	Id       int64  `json:"id"`
+	Nickname string `json:"nickname"`
+	Avatar   string `json:"avatar"`
+}
+
+// 视频统计数据 (一键三连)
+type Stat {
+	ViewCount    int64 `json:"viewCount"`
+	DanmakuCount int64 `json:"danmakuCount"`
+	ReplyCount   int64 `json:"replyCount"`
+	LikeCount    int64 `json:"likeCount"`
+	CoinCount    int64 `json:"coinCount"`
+}
+
+// 视频列表卡片 (用于首页流)
+type VideoCard {
+	Id          int64  `json:"id"`
+	Title       string `json:"title"`
+	CoverUrl    string `json:"coverUrl"`
+	AuthorName  string `json:"authorName"`
+	ViewCount   int64  `json:"viewCount"`
+	PublishTime int64  `json:"publishTime"`
+}
+
+// =======================
+// 2. 接口请求/响应定义
+// =======================
+// --- 投稿 ---
+type PublishReq {
+	Title      string `json:"title"`
+	CoverUrl   string `json:"coverUrl"`
+	VideoUrl   string `json:"videoUrl"`
+	CategoryId int32  `json:"categoryId"`
+	Summary    string `json:"summary"`
+}
+
+type PublishResp {
+	VideoId int64 `json:"videoId"`
+}
+
+// --- 首页推荐/分区列表 ---
+type FeedReq {
+	CategoryId int32 `form:"categoryId,default=0"` // 0表示全站推荐
+	Cursor     int64 `form:"cursor,default=0"` // 游标分页 (防数据重复)
+	Limit      int   `form:"limit,default=20"` // 每页数量
+}
+
+type FeedResp {
+	List   []VideoCard `json:"list"`
+	Cursor int64       `json:"cursor"` // 下一页的游标
+	IsEnd  bool        `json:"isEnd"` // 是否到底了
+}
+
+// --- 视频详情 ---
+type DetailReq {
+	Id int64 `path:"id"`
+}
+
+type DetailResp {
+	Id         int64  `json:"id"`
+	Title      string `json:"title"`
+	Summary    string `json:"summary"`
+	CoverUrl   string `json:"coverUrl"`
+	CategoryId int32  `json:"categoryId"`
+	Author     Author `json:"author"`
+	Stat       Stat   `json:"stat"`
+}
+
+// --- 获取播放地址 ---
+type PlayReq {
+	Id           int64  `path:"id"`
+	QualityLimit string `form:"qualityLimit,optional"` // 请求画质 1080P/720P
+}
+
+type StreamInfo {
+	Quality string `json:"quality"`
+	Format  string `json:"format"`
+	Url     string `json:"url"`
+}
+
+type PlayResp {
+	Streams []StreamInfo `json:"streams"`
+}
+
+// =======================
+// 3. 服务路由定义
+// =======================
+// 【免登录可见接口】
+@server (
+	group: public
+)
+service video-api {
+	@doc "首页推荐视频流"
+	@handler Feed
+	get /video/v1/feed (FeedReq) returns (FeedResp)
+
+	@doc "获取视频详情"
+	@handler Detail
+	get /video/v1/detail/:id (DetailReq) returns (DetailResp)
+
+	@doc "获取真实的视频流媒体播放地址"
+	@handler Play
+	get /video/v1/play/:id (PlayReq) returns (PlayResp)
+}
+
+// 【需要鉴权登录的接口】
+@server (
+	jwt:   Auth
+	group: private
+)
+service video-api {
+	@doc "UP主投稿视频"
+	@handler Publish
+	post /video/v1/publish (PublishReq) returns (PublishResp)
+}
+
