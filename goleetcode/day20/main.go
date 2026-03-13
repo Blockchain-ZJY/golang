@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"cmp"
 	"fmt"
 	"math/bits"
@@ -11,17 +10,35 @@ import (
 
 func main() {
 
-	a := []byte("AAAA/BBBBB")
-	b := append(a, 'C')
-	fmt.Println(string(a), len(a), cap(a), "len(a) cap(a)")
-	fmt.Println(string(b), len(b), cap(b), "len(b) cap(b)")
-	index := bytes.IndexByte(a, '/')
-	fmt.Println(string(b), "string(b)")
-	c := a[index+1:]
-	b = append(b, "CCCCCCC"...)
-	fmt.Println(len(b), cap(b), "len(b)")
+	// a := []byte("AAAA/BBBBB")
+	// b := append(a, 'C')
+	// fmt.Println(string(a), len(a), cap(a), "len(a) cap(a)")
+	// fmt.Println(string(b), len(b), cap(b), "len(b) cap(b)")
+	// index := bytes.IndexByte(a, '/')
+	// fmt.Println(string(b), "string(b)")
+	// c := a[index+1:]
+	// b = append(b, "CCCCCCC"...)
+	// fmt.Println(len(b), cap(b), "len(b)")
 
-	fmt.Println(string(c))
+	merge([]int{0}, 0, []int{1}, 1)
+}
+
+func merge(nums1 []int, m int, nums2 []int, n int) {
+	n--
+	m--
+	//如果n<0 ,后续不需要动nums1了
+	for i := len(nums1) - 1; i >= 0; i-- {
+		if m >= 0 && n >= 0 && nums1[m] > nums2[n] {
+			nums1[i] = nums1[m]
+			m--
+		} else if m == 0 {
+			for j := i; j >= 0; j-- {
+				nums1[j] = nums2[n]
+				n--
+			}
+			return
+		}
+	}
 }
 
 func groupAnagrams(strs []string) (ans [][]string) {

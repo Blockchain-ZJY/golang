@@ -8,12 +8,56 @@ import (
 )
 
 func main() {
-	// ans := longestConsecutive([]int{0, 3, 7, 2, 5, 8, 4, 6, 0, 1})
-	// ans := longestConsecutive([]int{100, 4, 200, 1, 3, 2})
-	// fmt.Println(threeSum([]int{0, 1, 1}))
-	// fmt.Println(topKFrequent([]string{"i", "love", "leetcode", "i", "love", "coding"}, 2))
-	// fmt.Println(topKFrequent([]string{"the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"}, 4))
-	fmt.Println(bs([]int{1, 3, 5, 7, 9, 13, 16, 27}, 16))
+	matrix := [][]int{
+		{0, 1},
+	}
+	setZeroes(matrix)
+}
+
+/**
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */
+// 链表排序
+// 找到中间的节点分为两段进行排序
+// 合并
+func sortList(head *ListNode) *ListNode {
+	if head == nil || head.Next == nil {
+		return head
+	}
+	s, f := head, head.Next
+	for f != nil && f.Next != nil {
+		f = f.Next.Next
+		s = s.Next
+	}
+	s.Next = nil
+	mid := s.Next
+	// 给两个
+	merge := func(a *ListNode, b *ListNode) *ListNode {
+		head := &ListNode{}
+		cur := head
+		for a != nil && b != nil {
+			if a.Val < b.Val {
+				cur.Next = a
+			} else {
+				cur.Next = b
+			}
+			cur = cur.Next
+		}
+		if a == nil {
+			cur.Next = b
+		}
+		if b == nil {
+			cur.Next = a
+		}
+		return head.Next
+	}
+	l := sortList(head)
+	r := sortList(mid)
+	return merge(l, r)
 }
 
 // 二分查找
@@ -31,6 +75,42 @@ func bs(nums []int, target int) int {
 		}
 	}
 	return -1
+}
+
+func setZeroes(matrix [][]int) {
+	// 用第一行第一列记录是否有该列该行是否有0
+	fr, fc := slices.Contains(matrix[0], 0), false
+	for i := 0; i < len(matrix); i++ {
+		if matrix[0][i] == 0 {
+			fc = true
+			break
+		}
+	}
+	for i := 1; i < len(matrix); i++ {
+		for j := 1; j < len(matrix[0]); j++ {
+			if matrix[i][j] == 0 {
+				matrix[i][0] = 0
+				matrix[0][j] = 0
+			}
+		}
+	}
+	fmt.Println(fr, fc, matrix)
+	for i := 1; i < len(matrix); i++ {
+		for j := 1; j < len(matrix[0]); j++ {
+			if matrix[i][0] == 0 || matrix[0][j] == 0 {
+				matrix[i][j] = 0
+			}
+		}
+	}
+	if fc {
+		for i := 0; i < len(matrix[0]); i++ {
+			matrix[i][0] = 0
+		}
+	}
+	if fr {
+		clear(matrix[0])
+	}
+
 }
 
 // 1 2 3 4 5
